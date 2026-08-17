@@ -524,6 +524,15 @@ strong { color: var(--color-ink); font-weight: 600; }
 }
 .matrix__foot { font-size: var(--text-sm); color: var(--color-ink-3); max-width: 68ch; margin-block-start: var(--space-sm); }
 
+/* license coverage variant: long text column left-aligned, status cell centered */
+.matrix--license td { text-align: start; line-height: 1.45; max-width: 34rem; }
+.matrix--license td:last-child { text-align: center; }
+.subhead__tag {
+  font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-accent-deep); margin-inline-start: var(--space-2xs);
+}
+
 /* cells */
 .cell {
   display: inline-flex; align-items: center; justify-content: center;

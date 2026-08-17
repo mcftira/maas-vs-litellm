@@ -54,7 +54,7 @@
 
     <!-- ============ 0 · HERO ============ -->
     <header class="hero">
-      <p class="hero__meta"><span class="tag">Belső architektúra-döntési anyag</span> <span class="hero__date">2026. augusztus</span></p>
+      <p class="hero__meta"><span class="tag">Belső architektúra-döntési anyag</span> <span class="hero__date">2026. augusztus · frissítve 08-18: Red Hat / Isovalent AI-biztonság</span></p>
       <h1 class="hero__title">LLM gateway döntési anyag</h1>
       <p class="hero__lede">Red Hat OpenShift AI MaaS × LiteLLM × Azure AI Foundry összevetése — egységes, hibrid LLM-hozzáférés egy nagy pénzintézet számára: on-prem OpenShift AI klaszter (GLM, 8× H100) és Azure AI Foundry-modellek egyetlen gateway-réteg mögött.</p>
       <p class="hero__aud">Célközönség: banki technológiai vezetés, platform-architekték, CISO-iroda. A számok forrása a <a href="#forrasok">10. szakasz</a> dátumozott hivatkozásai; a nem hivatalos adatok külön jelölve.</p>
@@ -95,13 +95,13 @@
         </li>
         <li class="rec">
           <span class="rec__num">4</span>
-          <p class="rec__head"><strong>Külön AI-security bolt-on (Lilith Zero és kategóriatársai) ebben az architektúrában nem kell.</strong></p>
-          <p class="rec__why"><span class="rec__tag">Miért</span> A Cilium + Tetragon fedi a hálózati és a runtime réteget; az LLM-szemantikai fenyegetéseket (prompt injection, PII a promptban, MCP tool-call visszaélés, token-governance) a már kiválasztott gateway guardrails rétege fedi — <strong>feltéve, hogy be is kapcsoljuk</strong>. A Lilith Zero ráadásul niche, vállalati támogatás nélküli OSS-projekt.</p>
+          <p class="rec__head"><strong>Külön AI-security bolt-on (Lilith Zero és kategóriatársai) nem kell — a meglévő Red Hat és Isovalent licencek fedik a rétegeket.</strong></p>
+          <p class="rec__why"><span class="rec__tag">Miért</span> Az OpenShift AI 3.4-ben <strong>GA</strong> a NeMo Guardrails (Presidio PII, jailbreak-rail) és az FMS Guardrails Orchestrator (prompt-injection detektor); az ágens-identitásra a ZTWIM (SPIFFE/SPIRE) <strong>GA</strong>; a hálózati és runtime réteget a Cilium + Tetragon fedi (Tetragon FIM a modellfájlokon). Egy gyenge pont maradt: az MCP tool-call réteg licencen belüli utódja (Connectivity Link MCP gateway) még <strong>Technology Preview</strong> — GA-ig a LiteLLM MCP-entitlements áthidalja. Részletek a 07. szakaszban.</p>
         </li>
       </ol>
       <div class="note-box">
         <p class="note-box__label">Őszinte pontosítás</p>
-        <p>A 4. pont nem azt állítja, hogy a Cilium/Tetragon helyettesíti az AI-securityt — <strong>más réteg</strong>, lásd a 07. szakasz réteg-fedfési mátrixát. Azt állítja, hogy a kiválasztott gateway már szállítja ezeket a védelmeket: a teendő a guardrails (Presidio PII, Azure Content Safety Prompt Shields stb.) <em>bekapcsolása</em>, nem újabb eszköz beszerzése.</p>
+        <p>A 4. pont nem azt állítja, hogy a Cilium/Tetragon helyettesíti az AI-securityt — <strong>más réteg</strong>, lásd a 07. szakasz réteg-fedfési mátrixát. Azt állítja, hogy az LLM-szemantikai védelmek <strong>megvannak licencen belül is</strong> (NeMo Guardrails, FMS Orchestrator — GA) és a kiválasztott gateway is szállítja őket (Presidio PII, Azure Content Safety Prompt Shields stb.): a teendő a <em>bekapcsolás</em>, nem újabb eszköz beszerzése. Amit licencen belül ma nem kapunk: AI-asset/shadow-AI felderítés (AI-BOM) — az a Cisco AI Defense, külön SKU, nem része az Isovalent-licencnek.</p>
       </div>
     </section>
 
@@ -629,13 +629,77 @@
         </table>
       </div>
 
+      <h3 class="subhead">Mit adnak a meglévő Red Hat + Isovalent licencek? <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
+      <div class="prose">
+        <p>Mivel a teljes Red Hat- és Isovalent-portfólióra licencünk van, a kérdés nem „milyen AI-securityt vegyünk“, hanem „mit kell bekapcsolni“. Az alábbi tábla a licencen belüli fedezetet mutatja fenyegetésosztályonként. <strong>Az Isovalent oldalon nincs külön LLM-tartalom-szűrő termék</strong> — a Cilium/Tetragon az infrastruktúra-réteget védi (FQDN-egress, L7-policy, Tetragon FIM a modellfájlokon és tanítóadatokon, OWASP LLM01/03/04 és MITRE ATLAS szerint feltérképezve) —, az AI-tartalom réteg a Red Hat oldalon van, az OpenShift AI részeként, külön díj nélkül.</p>
+      </div>
+      <div class="matrix-wrap">
+        <table class="matrix matrix--license" id="licenseMatrix">
+          <caption class="visually-hidden">Fenyegetésosztályok fedezete a meglévő Red Hat / Isovalent licencekkel</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="matrix__feature">Fenyegetésosztály</th>
+              <th scope="col">Licencen belüli megoldás</th>
+              <th scope="col">Státusz</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Prompt injection / jailbreak</th>
+              <td>NeMo Guardrails (self-check rail-ek, jailbreak-konfig) + FMS Guardrails Orchestrator DeBERTa prompt-injection detektor — TrustyAI operator, a vLLM/KServe elé</td>
+              <td><button type="button" class="cell cell--yes" data-note="OpenShift AI 3.4 release notes: a NeMo Guardrails 3.3 TP után 3.4-ben fully supported; a 3.5-ös guardrails-könyv jailbreak-konfigot is dokumentál.">GA · 3.4</button></td>
+            </tr>
+            <tr>
+              <th scope="row">PII a promptban / válaszban</th>
+              <td>NeMo Guardrails Presidio-detektor (blokkolás <em>vagy</em> [MASKED] maszkolás input/output irányban) + FMS regex-PII detektor</td>
+              <td><button type="button" class="cell cell--yes" data-note="GA 3.4-ben; a Guardrails Gateway sidecar preset pipeline-t is ad (pl. /pii/v1/chat/completions).">GA · 3.4</button></td>
+            </tr>
+            <tr>
+              <th scope="row">Káros tartalom moderálása</th>
+              <td>NeMo self-check output rail + HAP-detektor (granite-guardian-hap-38m) az FMS Orchestratorban</td>
+              <td><button type="button" class="cell cell--yes" data-note="GA 3.4; a Llama Stack / OGX playground shield-változat (Llama Guard, Prompt Guard) még TP 3.5 EA-ban.">GA · 3.4</button></td>
+            </tr>
+            <tr>
+              <th scope="row">Token-DoS / költségrobbanás</th>
+              <td>MaaS token-kvóták subscripciónként (GA 3.4) + Connectivity Link <code>TokenRateLimitPolicy</code> (tényleges tokeneket számlál a válaszokból)</td>
+              <td><button type="button" class="cell cell--yes" data-note="MaaS-kvóták GA 3.4-ben; a TokenRateLimitPolicy dokumentált és demózott RHCL-en, formális GA-mondatot nem találtunk — jelölve.">GA</button></td>
+            </tr>
+            <tr>
+              <th scope="row">Ágens-identitás</th>
+              <td>Zero Trust Workload Identity Manager (SPIFFE/SPIRE): rövid életű SVID-k a statikus API-kulcsok helyett — az OpenShift Platform Plus része</td>
+              <td><button type="button" class="cell cell--yes" data-note="GA 2026 január vége óta; multicluster federáció, Vault secretless auth. A per-ágens Kagenti AgentRuntime CRD még roadmap.">GA · 2026-01</button></td>
+            </tr>
+            <tr>
+              <th scope="row">Inference-infra védelem (GPU-node, modellfájlok)</th>
+              <td>Cilium identitás-alapú FQDN/L7 policy + Tetragon File Integrity Monitoring a modell- és tanítófájlokon + OpenShift SCC/SELinux/Kata sandbox</td>
+              <td><button type="button" class="cell cell--yes" data-note="Isovalent „Securing AI/ML Workloads“ (2025-12): MITRE ATLAS AML.T0018/T0010/T0015 és OWASP LLM01/03/04 leképezés. Adatmérgezés-detektálás FIM-mel.">GA</button></td>
+            </tr>
+            <tr>
+              <th scope="row">AI red teaming</th>
+              <td>Garak (120+ probe) a Llama Stack / OGX disztribúcióban + Chatterbox Labs AIMI-technológia (felvásárlás 2025-12)</td>
+              <td><button type="button" class="cell cell--part" data-note="A 3.4 release notes GA „New features“ közt sorolja a Garak-providert, a Red Hat Developer cikk TP-ként írja le — a források eltérnek, ezért GA/TP-keverékként jelöljük.">GA/TP</button></td>
+            </tr>
+            <tr>
+              <th scope="row">MCP tool-call authorize (a Lilith Zero-osztály)</th>
+              <td>Connectivity Link MCP gateway: OAuth2 authN, felhasználónkénti tool-ACL (<code>x-authorized-tools</code>), virtuális MCP szerverek (tool-almazosítók), audit trail</td>
+              <td><button type="button" class="cell cell--part" data-note="RHCL 1.3.3 (2026-04-30) óta Technology Preview, az 1.4-ben (2026-07) is az — nincs production SLA. A NeMo × MCP gateway tool-call guardrails integráció szintén TP (3.5 EA). Ez a licencen belüli terv leggyengébb pontja; GA-ig a LiteLLM MCP-entitlements + tool-result guardrails áthidalja.">TP</button></td>
+            </tr>
+            <tr>
+              <th scope="row">AI-asset / shadow-AI felderítés (AI-BOM, MCP-katalógus)</th>
+              <td><strong>Nincs licencen belüli megoldás.</strong> Ez a Cisco AI Defense (MCP Catalog, AI BOM, red teaming, agentic guardrails) — <strong>külön Cisco Security SKU, nem része az Isovalent-licencnek</strong>; részleges hálózati szintű mérséklés: Cilium FQDN-egress + OpenShift EgressFirewall</td>
+              <td><button type="button" class="cell cell--no" data-note="A Cisco 2026-02-10-i AI Defense kibővítése (AI BOM, MCP Catalog, NeMo-integráció) a Secure AI Factory része — referencia-architektúra szinten illeszkedik az Isovalent-rétegekhez, termékszinten nem olvad bele. Az árazás nem nyilvános.">nincs</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <h3 class="subhead">Mi is a Lilith Zero pontosan?</h3>
       <div class="prose">
         <p>A <strong>Lilith Zero</strong> (<code>BadC-mpany/lilith-zero</code>) egy kis közösségi OSS-projekt: Rust-ban írt, determinisztikus security middleware MCP tool-hívásokhoz — statikus ACL-ek, session taint tracking, „lethal trifecta“ exfiltration-blokkolás, HMAC-aláírt audit log, hookok Claude Code-hoz és GitHub Copilothoz (Apache-2.0, Kani-verified; Show HN 2026-04-06). <strong>Nem vállalati termék, nem prompt-tűzfal</strong>: a prompt tartalmát nem vizsgálja, a tool-call-következményeket korlátozza. A kategória komoly, vállalati képviselői más eszközök — és sorban felvásárolták őket: Lakera → Check Point (2025-09, ~300&nbsp;M USD), Protect AI → Palo Alto (Prisma AIRS, 2025-07), Prompt Security → SentinelOne (2025-08, ~250&nbsp;M USD).</p>
       </div>
       <div class="note-box">
         <p class="note-box__label">Ítélet — tisztességesen, rétegenként</p>
-        <p>A Cilium + Tetragon <strong>nem</strong> fedi az LLM-szemantikai fenyegetéseket — más réteg, ezt nem szabad összemosni. Viszont az a réteg <strong>már fedve van</strong>: a kiválasztott gateway guardrails-kerete (LiteLLM: Presidio, Lakera, Azure Content Safety; APIM: llm-content-safety; Azure oldalon Prompt Shields) pontosan ezeket a sorokat tölti ki a mátrixban. Ezért ebben az architektúrában <strong>külön AI-security bolt-on — Lilith Zero vagy kategóriatárs — redundáns</strong>: nem azért, mert a Cilium/Tetragon helyettesítené, hanem mert a gateway már szállítja. A Lilith Zero oszlopa a mátrixban vékony, és az egyetlen erős cellája (MCP tool-call) is átfedésben van a gateway MCP-entitlements + tool-result guardrailsével. Ráadásul niche, enterprise-support nélküli OSS — egy bankban ez önmagában kizáró ok. <strong>A valódi teendő nem beszerzés, hanem bekapcsolás:</strong> a gateway guardrails-profilt (PII + Prompt Shields + tool-result szűrés) élesíteni kell, különben a fedés papíron marad.</p>
+        <p>A Cilium + Tetragon <strong>nem</strong> fedi az LLM-szemantikai fenyegetéseket — más réteg, ezt nem szabad összemosni. Viszont az a réteg <strong>kétszer is fedve van licencen belül</strong>: a kiválasztott gateway guardrails-kerete (LiteLLM: Presidio, Lakera, Azure Content Safety; APIM: llm-content-safety) <em>és</em> az OpenShift AI saját, GA guardrails-stacketje (NeMo Guardrails + FMS Orchestrator) is. Ezért ebben az architektúrában <strong>külön AI-security bolt-on — Lilith Zero vagy kategóriatárs — redundáns</strong>. A Lilith Zero egyetlen erős cellájának (MCP tool-call) is megvan a licencen belüli utódja: a Connectivity Link MCP gateway — ma még TP, ez a terv egyetlen gyenge pontja; GA-ig a LiteLLM MCP-entitlements + tool-result guardrails hidalja át. Ráadásul a Lilith Zero niche, enterprise-support nélküli OSS — egy bankban ez önmagában kizáró ok. <strong>A valódi teendő nem beszerzés, hanem bekapcsolás és integráció:</strong> NeMo/FMS detektorok + gateway guardrails-profil élesítése, ZTWIM-identitás, Tetragon FIM — platform-engineering program, nulla új vendorral. Amire őszintén nincs licencen belüli válasz: AI-asset/shadow-AI felderítés — ha kell, az külön döntés (Cisco AI Defense, külön SKU).</p>
       </div>
     </section>
 
@@ -655,6 +719,7 @@
             <li>PostgreSQL + Redis HA telepítés; OpenShift SCC-kompatibilis image-ek.</li>
             <li>Foundry <code>azure_ai</code> provider bekötése; helyi vLLM/GLM OpenAI-végpont regisztrálása.</li>
             <li>Guardrails-profil pilot: Presidio PII + Azure Content Safety egy pilot csapaton.</li>
+            <li><strong>Meglévő licenc bekapcsolása:</strong> NeMo Guardrails + FMS Orchestrator deploy (TrustyAI operator), prompt-injection és HAP detektor-InferenceService-k, PII-policy a GLM-végpont elé — külön díj nélkül, az OpenShift AI része.</li>
             <li>Egress: Foundry-FQDN allowlist a forward proxyn (B minta indulásként).</li>
           </ul>
         </li>
@@ -665,6 +730,7 @@
             <li>Virtuális kulcsok és csapat-büdzsék minden fogyasztónak; rate-limit tierek.</li>
             <li>SSO (OIDC/SAML) + SCIM a vállalati IdP-hez; audit log retenció beállítása.</li>
             <li>MCP gateway + felhasználónkénti entitlements a coding ágensekhez; tool-result guardrails.</li>
+            <li>ZTWIM (SPIFFE/SPIRE) pilot: rövid életű ágens-identitások a statikus kulcsok helyett; Tetragon FIM-policy a modellfájlokra, Cilium FQDN/L7 policy az inference namespace-ekre.</li>
             <li>RH MaaS self-service továbbra is on-cluster fogyasztóknak; szerepek dokumentálása.</li>
             <li>Compliance-döntés: ha publikus endpoint nem engedhető meg, C minta — Private Link + ExpressRoute + Private DNS Resolver projektindítás.</li>
           </ul>
@@ -678,6 +744,8 @@
             <li>DR/multi-cluster stratégia (ha több klaszter: Cilium Cluster Mesh értékelése, globális service-ekhez).</li>
             <li>LiteLLM Rust data plane újraértékelése, amikor production-érett (cél: 2026. december).</li>
             <li>RH MaaS külső routing újraértékelése, amint GA-ra kerül.</li>
+            <li>Connectivity Link MCP gateway (ma TP) GA-követése: átállás a licencen belüli MCP tool-call authorize-ra; addig LiteLLM MCP-entitlements.</li>
+            <li>Döntés az AI-asset/shadow-AI felderítésről (AI-BOM): licencen belül nincs rá eszköz — Cisco AI Defense (külön SKU) vagy hálózati szintű mérséklés (Cilium FQDN + EgressFirewall).</li>
           </ul>
         </li>
       </ol>
@@ -724,9 +792,24 @@
     <section class="section" id="forrasok" aria-labelledby="h-forrasok">
       <h2 class="section__title" id="h-forrasok"><span class="h-num">10</span> Források</h2>
       <div class="prose">
-        <p>Kutatás dátuma: 2026-08-17. Ahol a forrás versenytárs-publikáció, azt külön jelöljük — az ilyen számok iránymutatók, nem tények.</p>
+        <p>Kutatás dátuma: 2026-08-17; a Red Hat / Isovalent AI-biztonság blokk frissítése: 2026-08-18. Ahol a forrás versenytárs-publikáció, azt külön jelöljük — az ilyen számok iránymutatók, nem tények.</p>
       </div>
       <div class="sources">
+        <div class="sources__group">
+          <h3>Red Hat / Isovalent AI-biztonság <span class="sources__date">frissítés 2026-08-18</span></h3>
+          <ul class="sources__list">
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/release_notes/new-features-and-enhancements_relnotes" target="_blank" rel="noopener">OpenShift AI 3.4 release notes — NeMo Guardrails GA, Garak-provider, MLflow GA</a> <span class="sources__date">2026-05</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/enabling_ai_safety_with_guardrails/enabling-ai-safety-with-nemo-guardrails_nemo-guardrails" target="_blank" rel="noopener">OpenShift AI 3.4 docs — NeMo Guardrails (Presidio PII, rail-ek, TrustyAI operator)</a> <span class="sources__date">2026-05</span></li>
+            <li><a href="https://developers.redhat.com/articles/2026/05/14/every-layer-counts-defense-depth-ai-agents-red-hat-ai" target="_blank" rel="noopener">Red Hat Developer — Defense in depth for AI agents (NeMo + FMS Orchestrator GA, platform-rétegek)</a> <span class="sources__date">2026-05-14</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/release_notes/technology-preview-features_relnotes" target="_blank" rel="noopener">OpenShift AI 3.5 EA — TP-funkciók (OGX shield-ek, NeMo × MCP gateway, EvalHub)</a> <span class="sources__date">2026-06</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.4/html/release_notes/rhcl-release-notes" target="_blank" rel="noopener">Red Hat Connectivity Link 1.4 release notes — MCP gateway (TP), X.509 GA</a> <span class="sources__date">2026-07</span></li>
+            <li><a href="https://developers.redhat.com/articles/2026/02/18/manage-ai-resource-use-tokenratelimitpolicy" target="_blank" rel="noopener">Red Hat Developer — TokenRateLimitPolicy (token-DoS védelem)</a> <span class="sources__date">2026-02-18</span></li>
+            <li><a href="https://isovalent.com/blog/post/securing-aiml-workloads-with-isovalent/" target="_blank" rel="noopener">Isovalent blog — Securing AI/ML Workloads (Cilium FQDN/L7, Tetragon FIM; MITRE ATLAS / OWASP LLM)</a> <span class="sources__date">2025-12-12</span></li>
+            <li><a href="https://www.redhat.com/en/blog/red-hat-acquire-chatterbox-labs-frequently-asked-questions" target="_blank" rel="noopener">Red Hat blog — Chatterbox Labs felvásárlás FAQ (Garak/AIMI)</a> <span class="sources__date">2025-12-16</span></li>
+            <li><a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m02/cisco-redefines-security-for-the-agentic-era.html" target="_blank" rel="noopener">Cisco Newsroom — AI Defense kibővítés (AI BOM, MCP Catalog; külön SKU)</a> <span class="sources__date">2026-02-10</span></li>
+            <li><a href="https://blogs.cisco.com/datacenter/accelerating-agent-intelligence-cisco-secure-ai-factory-expands-with-nvidia-and-vast" target="_blank" rel="noopener">Cisco Blogs — Secure AI Factory (Isovalent + AI Defense referencia-architektúra)</a> <span class="sources__date">2026-02-25</span></li>
+          </ul>
+        </div>
         <div class="sources__group">
           <h3>Red Hat OpenShift AI MaaS</h3>
           <ul class="sources__list">
