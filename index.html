@@ -156,6 +156,75 @@
           <li><strong>Párhuzamos sáv.</strong> Red Hat case/TAM: (a) GLM-5.2 W8A8 validálásának kérése (a 4.6-os precedens miatt reális), (b) a nem katalógusos, ügyfél-deployolt modellek support-státuszának írásbeli megerősítése.</li>
         </ol>
       </div>
+
+      <h3 class="subhead">Fejlesztői workbenchek — code-server vs Coder <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
+      <div class="prose">
+        <p>A PoC-ban a fejlesztők <strong>OpenShift AI workbencheken</strong> dolgoznak: böngészős VS Code (code-server), előre bekötve a LiteLLM-gatewayre (<code>ANTHROPIC_BASE_URL</code> + virtuális kulcs), Claude Code extensionnel. Tisztázandó félreértés: <strong>az OpenShift AI code-servere ugyanaz a coder/code-server OSS-projekt</strong> — a 3.4-támogatott image code-server 4.104-et (VS Code 1.104) tartalmaz, UBI9-re építve, nginx/oauth-proxy burkolattal, extensionök az Open VSX-ből (.vsix). A <strong>coder/coder (Coder v2) ezzel szemben egy másik termék</strong> ugyanattól a vendor-tól: nem editor, hanem workspace-orchestrációs platform (Terraform-templátek, tetszőleges IDE, quotas, audit). Aki „Coder"-t mond, nem feltétlenül ugyanarra gondol.</p>
+        <p>Claude Code-megjegyzések a PoC-hoz: az extension a háttérben a <strong>CLI-t indítja</strong> — azt be kell égetni a workbench-image-be (Red Hat <a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.3/html/managing_openshift_ai/creating-custom-workbench-images" target="_blank" rel="noopener">custom workbench image útmutató</a>); a code-serveres extensionnek ismert bugjai vannak (2–4× lassabb, webview-hibák), az <strong>integrált terminálos CLI a megbízható út</strong>. Anthropic-oldali őszinte megjegyzés: a hivatalos gateway-doksi szerint az Anthropic „nem támogatja a Claude Code nem-Claude modellekre irányítását gatewayen át" — ez nem tilalom, hanem support-kizárás; az eddigi fellépések (2026-01) fogyasztói OAuth-spoofing és versenytárs-használat ellen szóltak, a mi mintánk (enterprise, saját modell LiteLLM mögött) nem ez — de a jogi/compliance csapat lássa el véleménnyel.</p>
+      </div>
+      <div class="matrix-wrap">
+        <table class="matrix matrix--license" id="coderMatrix">
+          <caption class="visually-hidden">OpenShift AI workbenches vs Coder v2 összehasonlítás</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="matrix__feature">Dimenzió</th>
+              <th scope="col">OpenShift AI 3.4 workbenchek</th>
+              <th scope="col">Coder v2 (Community / Premium)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Mi ez</th>
+              <td>Workbench CR-k (JupyterLab, code-server 4.104, RStudio TP), a RHOAI dashboardból</td>
+              <td>Terraform-templát alapú workspace-ök, bármilyen IDE (VS Code, JetBrains, Cursor, SSH)</td>
+            </tr>
+            <tr>
+              <th scope="row">Hitelesítés</th>
+              <td>OpenShift OAuth (oauth-proxy sidecar)</td>
+              <td>OIDC SSO mindkét csomagban; csoport-/szerep-szinkron, custom szerepek, multi-org — Premium</td>
+            </tr>
+            <tr>
+              <th scope="row">LLM-bekötés</th>
+              <td>Env-var/secret a workbench létrehozásakor; natív MaaS-végpontok</td>
+              <td>Templát-injektált env/param; Premium: AI Bridge/agent-governance funkciók</td>
+            </tr>
+            <tr>
+              <th scope="row">Tár / GPU</th>
+              <td>PVC workbenchönként; GPU hardware-profile-okkal</td>
+              <td>Bármi, amit a templát kér (PVC, GPU)</td>
+            </tr>
+            <tr>
+              <th scope="row">Életciklus</th>
+              <td>Idle culling, dashboard start/stop</td>
+              <td>Autostart/autostop; <strong>kikényszerített</strong> ütemezés + kvóták — Premium</td>
+            </tr>
+            <tr>
+              <th scope="row">Audit</th>
+              <td>OpenShift audit log; per-IDE audit nincs</td>
+              <td>Audit logging + workspace command logging — Premium</td>
+            </tr>
+            <tr>
+              <th scope="row">Efemer, per-projekt környezetek</td>
+              <td>Kézi (projekt-workbench)</td>
+              <td>Natív (prebuilt workspace-ök is)</td>
+            </tr>
+            <tr>
+              <th scope="row">Licenc / költség</th>
+              <td><span class="lic">Licenc: OpenShift AI alap-előfizetés — már megvan</span></td>
+              <td><span class="lic">Community: ingyenes (korlátlan workspace, 1 org); Premium: per-user/éves, ár nem nyilvános</span></td>
+            </tr>
+            <tr>
+              <th scope="row">OpenShift-illeszkedés</th>
+              <td>Natív</td>
+              <td>Támogatott — <strong>restricted-v2 SCC alatt, anyuid nélkül</strong> (banki szempontból fontos)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box">
+        <p class="note-box__label">Ítélet — workbench-szinten</p>
+        <p>A PoC-ra és az agentic-coding fókuszra <strong>marad az OpenShift AI workbench</strong>: már licenszelt, natív OAuth/MaaS-integrációval, és az editor ugyanaz a code-server. A Coder akkor éri meg (Premium), ha kell: multi-IDE választék (JetBrains/SSH), Terraform-irányított per-projekt efemer környezetek, kötelező autostop/kvóta flotta-szinten, multi-org, valódi audit/command logging. Javasolt út: <strong>Coder Community pilot ugyanazon a klaszteren</strong> (ingyenes, restricted-v2 alatt futhat) — két hét alatt kiderül, a governance-gap valódi-e, mielőtt Premium-árról beszélnénk.</p>
+      </div>
     </section>
 
     <!-- ============ 3 · RED HAT MAAS ============ -->
@@ -781,6 +850,7 @@
             <li>RH MaaS self-service továbbra is on-cluster fogyasztóknak; szerepek dokumentálása.</li>
             <li>Compliance-döntés: ha publikus endpoint nem engedhető meg, C minta — Private Link + ExpressRoute + Private DNS Resolver projektindítás.</li>
             <li>Cisco Secure AI Factory értékelés: ingyenes dCloud instant demo lefuttatása (intro + v2 scenariok); ha az AI-asset-felderítés kell, AI Defense PoC — scope szigorúan Discovery/AI-BOM/MCP-audit (a runtime guardrails átfedné a meglévő NeMo/FMS + LiteLLM réteget).</li>
+            <li>Fejlesztői környezet: Claude Code CLI beégetése egy custom code-server workbench-image-be (az extension helyett a terminál a megbízható); Coder Community pilot ugyanazon a klaszteren a governance-gap felmérésére (restricted-v2 alatt fut, anyuid nélkül).</li>
           </ul>
         </li>
         <li class="roadmap__step">
@@ -940,6 +1010,21 @@
           </ul>
         </div>
         <div class="sources__group">
+          <h3>Fejlesztői környezet (code-server vs Coder) <span class="sources__date">frissítés 2026-08-18</span></h3>
+          <ul class="sources__list">
+            <li><a href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">Red Hat — Supported Configurations 3.x (code-server 4.104 / VS Code 1.104 a 3.4-ben)</a> <span class="sources__date">2026-07-09</span></li>
+            <li><a href="https://raw.githubusercontent.com/opendatahub-io/notebooks/main/codeserver/ubi9-python-3.12/Dockerfile.konflux.cpu" target="_blank" rel="noopener">opendatahub-io/notebooks — a code-server workbench Dockerfile (coder/code-server forrásból, UBI9)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://coder.com/blog/code-server-vs-coder-v2" target="_blank" rel="noopener">Coder blog — code-server vs Coder v2 (editor vs platform)</a> <span class="sources__date">2023-01-04</span></li>
+            <li><a href="https://coder.com/pricing" target="_blank" rel="noopener">Coder — pricing (Community vs Premium split; ár nem nyilvános)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://coder.com/docs/install/openshift" target="_blank" rel="noopener">Coder docs — OpenShift-telepítés (restricted-v2, anyuid nélkül)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://code.claude.com/docs/en/llm-gateway" target="_blank" rel="noopener">Anthropic — Claude Code LLM gateway doksi (ANTHROPIC_BASE_URL; „no support for non-Claude models via gateway")</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://docs.litellm.ai/docs/tutorials/claude_code_max_subscription" target="_blank" rel="noopener">LiteLLM docs — Claude Code a gateway mögött (virtuális kulcsok, büdzsék)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://github.com/anthropics/claude-code/issues/15172" target="_blank" rel="noopener">GitHub — claude-code#15172 (extension lassabb code-serverben; a CLI-terminál a megbízható)</a> <span class="sources__date">2025-12-23</span></li>
+            <li><a href="https://venturebeat.com/technology/anthropic-cracks-down-on-unauthorized-claude-usage-by-third-party-harnesses" target="_blank" rel="noopener">VentureBeat — Anthropic fellépés third-party harnessek ellen (2026-01)</a> <span class="sources__date">2026-01-09</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.3/html/managing_openshift_ai/creating-custom-workbench-images" target="_blank" rel="noopener">Red Hat docs — custom workbench image készítése</a> <span class="sources__date">2026-08-18</span></li>
+          </ul>
+        </div>
+        <div class="sources__group">
           <h3>Modell-import és validáció (W8A8) <span class="sources__date">frissítés 2026-08-18</span></h3>
           <ul class="sources__list">
             <li><a href="https://huggingface.co/zai-org" target="_blank" rel="noopener">Hugging Face — zai-org (GLM-5.2: csak BF16 + FP8; W8A8 nincs)</a> <span class="sources__date">2026-08-18</span></li>
@@ -997,6 +1082,8 @@
         <div class="glossary__item"><dt>Cisco AI Defense</dt><dd>A Cisco AI-biztonsági platformja (Discovery / red teaming / runtime guardrails, MCP-audit a v2-ben) — külön SKU, nem része az Isovalent-licencnek.</dd></div>
         <div class="glossary__item"><dt><a href="https://cilium.io/" target="_blank" rel="noopener">Cilium</a></dt><dd>eBPF-alapú Kubernetes-hálózat (CNI): identitás-alapú L3–L7 policy, FQDN-egress, Hubble-megfigyelés. Isovalent Enterprise Platform Networking-pillére.</dd></div>
         <div class="glossary__item"><dt><a href="https://docs.cilium.io/en/stable/network/clustermesh/intro/" target="_blank" rel="noopener">Cluster Mesh</a></dt><dd>Cilium-funkció: több klaszter pod-hálózatának összekapcsolása, globális service-ekkel. PaaS-API fogyasztásához nem kell.</dd></div>
+        <div class="glossary__item"><dt>code-server</dt><dd>A Coder OSS-projektje: VS Code a böngészőben. Az OpenShift AI workbench-image-e erre épül (4.104 = VS Code 1.104 a 3.4-ben).</dd></div>
+        <div class="glossary__item"><dt>Coder (v2)</dt><dd>A code-server vendorának másik terméke: workspace-orchestrációs platform Terraform-templátekkel, tetszőleges IDE-vel — nem azonos a code-serverrel.</dd></div>
         <div class="glossary__item"><dt>Cosign</dt><dd>Konténerimage-aláírás és -ellenőrzés; a LiteLLM image-ek v1.83.0 óta cosign-aláírtak — deploy előtt kötelező ellenőrizni.</dd></div>
         <div class="glossary__item"><dt>CRD (Custom Resource Definition)</dt><dd>Kubernetes-bővítmény, amelyben a MaaS-objektumok (MaaSSubscription, MaaSAuthPolicy…) élnek — GitOps-barát konfiguráció.</dd></div>
         <div class="glossary__item"><dt>CVE / CVSS / CISA KEV</dt><dd>Sebezhetőség-azonosító; súlyossági pontszám; a CISA aktívan kihasznált sebezhetőségeinek listája (a CVE-2026-42271 rajta van).</dd></div>
