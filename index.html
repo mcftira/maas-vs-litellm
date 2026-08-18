@@ -150,7 +150,7 @@
         <ol class="tick-list tick-list--plain">
           <li><strong>Igény megerősítése.</strong> W8A8 8× H100-on lehetetlen (704 &gt; 596 GiB); ha a cél minőség az NVFP4-hez képest, először az MXFP4xMXFP8-at vagy FP8-at érdemes mérni 2 node-on.</li>
           <li><strong>Forrásbeszerzés staging-enklávéban.</strong> ModelScope-ról a T-HEAD-checkpoint (282 shard, SHA-256 rögzítve darabonként) — vagy tisztaebb út: <strong>saját W8A8-kvantálás</strong> a zai-org BF16-ból llm-compressor GPTQ-val, a Red Hat GLM-4.6-os receptje mentén; így a harmadik-fél-kvantáló bizalmi kérdése teljesen kiesik.</li>
-          <li><strong>Biztonsági szűrés.</strong> ModelScan minden fájlra (pickle-alapú támadásokra), kézi review: <code>chat_template.jinja</code>, konfigok, minden .py; licenc-ellenőrzés (MIT + a repackager feltételei); belső model card a provenánciáról.</li>
+          <li><strong>Biztonsági szűrés.</strong> <a class="rowlink" href="https://github.com/protectai/modelscan" target="_blank" rel="noopener">ModelScan</a> minden fájlra (pickle-alapú támadásokra — figyelem: a repo 2026-02 óta mozdulatlan, a Protect AI a Palo Alto-hoz került, a karbantartást ellenőrizni kell), kézi review: <code>chat_template.jinja</code>, konfigok, minden .py; licenc-ellenőrzés (MIT + a repackager feltételei); belső model card a provenánciáról.</li>
           <li><strong>Betöltés a lezárt környezetbe.</strong> Tükör belső S3-ba vagy cosign-aláírt OCI modelcar-ként (Red Hat Trusted Artifact Signer); regisztráció a model registry-be teljes metadatával; opcionálisan belső model-catalog forrás (yaml a <code>model-catalog-sources</code> ConfigMapbe).</li>
           <li><strong>Funkcionális validáció 2×8 H100-on.</strong> KServe InferenceService (S3/oci:// storageUri), vLLM TP16 + expert parallelism; lm-evaluation-harness pontosság a BF16/FP8-baseline ellen (a T-HEAD ≥99%-os recovery-t állít), GuideLLM teljesítmény-baseline.</li>
           <li><strong>Élesítési edzés.</strong> Token-auth, route-policy, UWM-metrikák, Recreate stratégia, NVFP4-re visszafagyasztott rollback.</li>
@@ -160,8 +160,8 @@
 
       <h3 class="subhead">Fejlesztői workbenchek — code-server vs Coder <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
       <div class="prose">
-        <p>A PoC-ban a fejlesztők <strong>OpenShift AI workbencheken</strong> dolgoznak: böngészős VS Code (code-server), előre bekötve a LiteLLM-gatewayre (<code>ANTHROPIC_BASE_URL</code> + virtuális kulcs), Claude Code extensionnel. Tisztázandó félreértés: <strong>az OpenShift AI code-servere ugyanaz a coder/code-server OSS-projekt</strong> — a 3.4-támogatott image code-server 4.104-et (VS Code 1.104) tartalmaz, UBI9-re építve, nginx/oauth-proxy burkolattal, extensionök az Open VSX-ből (.vsix). A <strong>coder/coder (Coder v2) ezzel szemben egy másik termék</strong> ugyanattól a vendor-tól: nem editor, hanem workspace-orchestrációs platform (Terraform-templátek, tetszőleges IDE, quotas, audit). Aki „Coder"-t mond, nem feltétlenül ugyanarra gondol.</p>
-        <p>Claude Code-megjegyzések a PoC-hoz: az extension a háttérben a <strong>CLI-t indítja</strong> — azt be kell égetni a workbench-image-be (Red Hat <a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.3/html/managing_openshift_ai/creating-custom-workbench-images" target="_blank" rel="noopener">custom workbench image útmutató</a>); a code-serveres extensionnek ismert bugjai vannak (2–4× lassabb, webview-hibák), az <strong>integrált terminálos CLI a megbízható út</strong>. Anthropic-oldali őszinte megjegyzés: a hivatalos gateway-doksi szerint az Anthropic „nem támogatja a Claude Code nem-Claude modellekre irányítását gatewayen át" — ez nem tilalom, hanem support-kizárás; az eddigi fellépések (2026-01) fogyasztói OAuth-spoofing és versenytárs-használat ellen szóltak, a mi mintánk (enterprise, saját modell LiteLLM mögött) nem ez — de a jogi/compliance csapat lássa el véleménnyel.</p>
+        <p>A PoC-ban a fejlesztők <strong>OpenShift AI workbencheken</strong> dolgoznak: böngészős VS Code (<a class="rowlink" href="https://github.com/coder/code-server" target="_blank" rel="noopener">code-server</a>), előre bekötve a LiteLLM-gatewayre (<code>ANTHROPIC_BASE_URL</code> + virtuális kulcs), Claude Code extensionnel. Tisztázandó félreértés: <strong>az OpenShift AI code-servere ugyanaz a coder/code-server OSS-projekt</strong> — a 3.4-támogatott image code-server 4.104-et (VS Code 1.104) tartalmaz, UBI9-re építve, nginx/oauth-proxy burkolattal, extensionök az Open VSX-ből (.vsix). A <strong>coder/coder (Coder v2) ezzel szemben egy másik termék</strong> ugyanattól a vendor-tól: nem editor, hanem workspace-orchestrációs platform (Terraform-templátek, tetszőleges IDE, quotas, audit). Aki „Coder"-t mond, nem feltétlenül ugyanarra gondol.</p>
+        <p>Claude Code-megjegyzések a PoC-hoz: az extension a háttérben a <strong>CLI-t indítja</strong> — azt be kell égetni a workbench-image-be (Red Hat <a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.3/html/managing_openshift_ai/creating-custom-workbench-images" target="_blank" rel="noopener">custom workbench image útmutató</a>); a code-serveres extensionnek ismert bugjai vannak (2–4× lassabb, webview-hibák), az <strong>integrált terminálos CLI a megbízható út</strong>. Anthropic-oldali őszinte megjegyzés: a hivatalos gateway-doksi szerint az Anthropic „nem támogatja a Claude Code nem-Claude modellekre irányítását gatewayen át" — ez nem tilalom, hanem support-kizárás; a <a class="rowlink" href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener">claude-code repo ráadásul nem OSS-licencű</a> (source-available), az eddigi fellépések (2026-01) fogyasztói OAuth-spoofing és versenytárs-használat ellen szóltak, a mi mintánk (enterprise, saját modell LiteLLM mögött) nem ez — de a jogi/compliance csapat lássa el véleménnyel.</p>
       </div>
       <div class="matrix-wrap" tabindex="0">
         <table class="matrix matrix--license" id="coderMatrix">
@@ -212,7 +212,7 @@
             <tr>
               <th scope="row">Licenc / költség</th>
               <td><span class="lic">Licenc: OpenShift AI alap-előfizetés — már megvan</span></td>
-              <td><span class="lic">Community: ingyenes (korlátlan workspace, 1 org); Premium: per-user/éves, ár nem nyilvános</span></td>
+              <td><span class="lic">Licenc: Community <a class="rowlink" href="https://github.com/coder/coder" target="_blank" rel="noopener">AGPL-3.0</a> (a code-server ezzel szemben MIT!) — jogi review kell; Premium: per-user/éves, ár nem nyilvános</span></td>
             </tr>
             <tr>
               <th scope="row">OpenShift-illeszkedés</th>
@@ -272,7 +272,7 @@
 
       <h3 class="subhead">Stack és előfeltételek</h3>
       <div class="prose">
-        <p>KServe + vLLM (Red Hat AI Inference) + llm-d (CNCF sandbox); Kubernetes Gateway API + Kuadrant (Authorino auth, Limitador rate limiting), mindez a Red Hat Connectivity Link operátoron át — 3.4-hez v1.3 kell, amely MCP gatewayt is hoz. Előfeltételek: OpenShift 4.19.9+, cert-manager, User Workload Monitoring, LWS-operátor, és <strong>ügyfél-oldali PostgreSQL 14+</strong> az API-kulcs életciklushoz („OpenShift AI does not provide a PostgreSQL database“).</p>
+        <p><a class="rowlink" href="https://github.com/kserve/kserve" target="_blank" rel="noopener">KServe</a> + <a class="rowlink" href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener">vLLM</a> (Red Hat AI Inference) + <a class="rowlink" href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d</a> (CNCF sandbox); Kubernetes Gateway API + <a class="rowlink" href="https://github.com/Kuadrant/kuadrant-operator" target="_blank" rel="noopener">Kuadrant</a> (<a class="rowlink" href="https://github.com/Kuadrant/authorino" target="_blank" rel="noopener">Authorino</a> auth, <a class="rowlink" href="https://github.com/Kuadrant/limitador" target="_blank" rel="noopener">Limitador</a> rate limiting), mindez a Red Hat Connectivity Link operátoron át — 3.4-hez v1.3 kell, amely MCP gatewayt is hoz (upstream: <a class="rowlink" href="https://github.com/Kuadrant/mcp-gateway" target="_blank" rel="noopener">Kuadrant/mcp-gateway</a>). Előfeltételek: OpenShift 4.19.9+, cert-manager, User Workload Monitoring, LWS-operátor, és <strong>ügyfél-oldali PostgreSQL 14+</strong> az API-kulcs életciklushoz („OpenShift AI does not provide a PostgreSQL database“).</p>
         <p><strong>Árazás.</strong> A MaaS az OpenShift AI része, külön díj nélkül; a Connectivity Link 3.4-től <a href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">a Red Hat AI SKU-khoz csak MaaS-használati esetekre van csomagolva</a> — szélesebb API-managementhez (pl. általános MCP gateway) a teljes Connectivity Link külön előfizetés, részletek az account teammel. Az OpenShift AI ára a <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">subscription guide szerint</a>: alap OpenShift-előfizetés + fizikai GPU-nként egy Red Hat AI Accelerator SKU (8× H100 = 8 SKU; részklaszter-lefedettség megengedett); a Red Hat AI Enterprise node-onkénti flat díj korlátlan GPU-val, AI-workload-megkötéssel. Nyilvános dollárárlista nincs.</p>
         <p><strong>Rések gateway-szemmel.</strong> Egyklaszteres (multicluster = teljes Connectivity Link); nincs dokumentált cross-provider failover/fallback vagy A/B routing; a 3.3→3.4 átállás breaking migráció (új API-kulcsok minden felhasználónak, állásidő, nincs automatizmus); llm-d prefill/decode szétválasztás FIPS-klasztereken hibás (ismert issue); a guardrails-mag (NeMo) GA, de a MaaS-útvonalba ágyazott inline kényszerítés nem kiemelt GA-funkció. Árulkodó jel: <strong>maga a Red Hat is szállít referencia-integrációkat LiteLLM- és Portkey-frontokhoz</strong> az OpenShift AI modellek elé (blog, 2026-05-14) — implicit elismerés, hogy a dedikált AI-gatewayek gazdagabbak tiszta gateway-feladatra.</p>
       </div>
@@ -282,7 +282,7 @@
     <section class="section" id="litellm" aria-labelledby="h-litellm">
       <h2 class="section__title" id="h-litellm"><span class="h-num">04</span> LiteLLM</h2>
       <div class="prose">
-        <p>A LiteLLM (BerriAI) a legnagyobb nyílt forrású LLM gateway: <strong>56&nbsp;547 GitHub-csillag</strong>, heti release-kadencia, legfrissebb stable a <strong>v1.97.0 (2026-08-15)</strong>. Licencmodell: open-core — MIT-licencű mag, kereskedelmi <code>/enterprise</code> könyvtár és <code>litellm-enterprise</code> csomag. 2026 két meghatározó eseménye: egy súlyos biztonsági év (PyPI supply-chain támadás + kritikus CVE-k) és a Python→Rust architektúra-váltás megkezdése.</p>
+        <p>A <a class="rowlink" href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">LiteLLM</a> (BerriAI) a legnagyobb nyílt forrású LLM gateway: <strong>56&nbsp;600+ GitHub-csillag</strong>, heti release-kadencia, legfrissebb stable a <strong>v1.97.0 (2026-08-15)</strong>. Licencmodell: open-core — MIT-licencű mag, kereskedelmi <code>/enterprise</code> könyvtár és <code>litellm-enterprise</code> csomag. 2026 két meghatározó eseménye: egy súlyos biztonsági év (PyPI supply-chain támadás + kritikus CVE-k) és a Python→Rust architektúra-váltás megkezdése.</p>
       </div>
 
       <h3 class="subhead">Funkciók (verifikált)</h3>
@@ -666,7 +666,7 @@
     <section class="section" id="biztonsag" aria-labelledby="h-biztonsag">
       <h2 class="section__title" id="h-biztonsag"><span class="h-num">07</span> Biztonsági rétegek</h2>
       <div class="prose">
-        <p>A „kell-e külön AI-security eszköz“ kérdést csak rétegenként lehet tisztességesen megválaszolni. A <strong>Cilium</strong> a hálózati szegmentálást és az L3–L7 policy-t fedi; a <strong>Tetragon</strong> eBPF-alapú runtime enforcement és megfigyelés (kernelben, folyamat-/fájl-/syscall-szinten, Kubernetes-identitással korrelálva; 2026 januárjától Windows-preview is). Ezek <strong>nem látnak LLM-szemantikát</strong>: kernel- és hálózati eseményeket vizsgálnak, nem promptokat. Az LLM-szemantikai fenyegetések (prompt injection, PII a promptban, tool-call visszaélés, token-governance) a <strong>gateway-rétegbe</strong> tartoznak — és ott már rendelkezésre állnak.</p>
+        <p>A „kell-e külön AI-security eszköz“ kérdést csak rétegenként lehet tisztességesen megválaszolni. A <a class="rowlink" href="https://github.com/cilium/cilium" target="_blank" rel="noopener"><strong>Cilium</strong></a> a hálózati szegmentálást és az L3–L7 policy-t fedi; a <a class="rowlink" href="https://github.com/cilium/tetragon" target="_blank" rel="noopener"><strong>Tetragon</strong></a> eBPF-alapú runtime enforcement és megfigyelés (kernelben, folyamat-/fájl-/syscall-szinten, Kubernetes-identitással korrelálva; 2026 januárjától Windows-preview is). Ezek <strong>nem látnak LLM-szemantikát</strong>: kernel- és hálózati eseményeket vizsgálnak, nem promptokat. Az LLM-szemantikai fenyegetések (prompt injection, PII a promptban, tool-call visszaélés, token-governance) a <strong>gateway-rétegbe</strong> tartoznak — és ott már rendelkezésre állnak.</p>
       </div>
 
       <div class="matrix-wrap" tabindex="0">
@@ -917,6 +917,67 @@
       <h2 class="section__title" id="h-forrasok"><span class="h-num">10</span> Források</h2>
       <div class="prose">
         <p>Kutatás dátuma: 2026-08-17; a Red Hat / Isovalent AI-biztonság blokk frissítése: 2026-08-18. Ahol a forrás versenytárs-publikáció, azt külön jelöljük — az ilyen számok iránymutatók, nem tények.</p>
+      </div>
+      <h3 class="subhead">Nyílt forrású komponenstérkép <span class="subhead__tag">GitHub API-ból mérve: 2026-08-18</span></h3>
+      <div class="prose">
+        <p>Az oldalon szereplő technológiák kanonikus repói, a javasolt stackben betöltött szerepükkel. Tanulságos mintázatok: a <code>coder/coder</code> platform AGPL-3.0 (míg a code-server MIT), a <code>claude-code</code> nem OSS-licencű, a TensorZero archivált, a Portkey a felvásárlás óta némák, a Llama Stack már OGX-ként él, a Garak az NVIDIA-hoz költözött.</p>
+      </div>
+      <div class="matrix-wrap" tabindex="0">
+        <table class="matrix matrix--license" id="repoMatrix">
+          <caption class="visually-hidden">Nyílt forrású komponensek térképe GitHub-metaadatokkal</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="matrix__feature">Komponens</th>
+              <th scope="col">GitHub repo</th>
+              <th scope="col">★</th>
+              <th scope="col">Licenc</th>
+              <th scope="col">Szerep a stackben</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Gateway és inference</th></tr>
+            <tr><th scope="row">vLLM</th><td><a href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener">vllm-project/vllm</a></td><td>89 361</td><td>Apache-2.0</td><td>Az inference-motor — helyi GLM és Red Hat AI Inference alapja</td></tr>
+            <tr><th scope="row">llm-d</th><td><a href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d/llm-d</a></td><td>4 050</td><td>Apache-2.0</td><td>Disztribuált inference (prefill/decode); a MaaS GA runtime-ja</td></tr>
+            <tr><th scope="row">KServe</th><td><a href="https://github.com/kserve/kserve" target="_blank" rel="noopener">kserve/kserve</a></td><td>5 801</td><td>Apache-2.0</td><td>Model-serving control plane az OpenShift AI-ban</td></tr>
+            <tr><th scope="row">LiteLLM</th><td><a href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">BerriAI/litellm</a></td><td>56 661</td><td>MIT + EE</td><td>A javasolt hibrid AI gateway</td></tr>
+            <tr><th scope="row">agentgateway</th><td><a href="https://github.com/agentgateway/agentgateway" target="_blank" rel="noopener">agentgateway/agentgateway</a></td><td>4 408</td><td>Apache-2.0</td><td>Rust MCP/A2A gateway — a Lilith-cell vállalati utódja</td></tr>
+            <tr><th scope="row">kagent</th><td><a href="https://github.com/kagent-dev/kagent" target="_blank" rel="noopener">kagent-dev/kagent</a></td><td>3 537</td><td>Apache-2.0</td><td>Kubernetes-ágens keretrendszer (CNCF sandbox)</td></tr>
+            <tr><th scope="row">Envoy</th><td><a href="https://github.com/envoyproxy/envoy" target="_blank" rel="noopener">envoyproxy/envoy</a></td><td>28 792</td><td>Apache-2.0</td><td>Az adatsík a Kuadrant/RHCL/mcp-gateway alatt</td></tr>
+            <tr><th scope="row">Kong</th><td><a href="https://github.com/Kong/kong" target="_blank" rel="noopener">Kong/kong</a></td><td>43 996</td><td>Apache-2.0</td><td>Alternatív gateway (ha Kong-estate lenne)</td></tr>
+            <tr><th scope="row">Bifrost</th><td><a href="https://github.com/maximhq/bifrost" target="_blank" rel="noopener">maximhq/bifrost</a></td><td>7 402</td><td>Apache-2.0</td><td>Fiatal Go-alternatíva</td></tr>
+            <tr><th scope="row">Portkey</th><td><a href="https://github.com/Portkey-AI/gateway" target="_blank" rel="noopener">Portkey-AI/gateway</a></td><td>12 757</td><td>MIT</td><td>Utolsó push 2026-05-25 — a Palo Alto-felvásárlás előtt</td></tr>
+            <tr><th scope="row">TensorZero</th><td><a href="https://github.com/tensorzero/tensorzero" target="_blank" rel="noopener">tensorzero/tensorzero</a></td><td>11 722</td><td>Apache-2.0</td><td><strong>Archivált 2026-06-11</strong> — nem opció</td></tr>
+            <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Red Hat / OpenShift stack (upstream)</th></tr>
+            <tr><th scope="row">ODH operator</th><td><a href="https://github.com/opendatahub-io/opendatahub-operator" target="_blank" rel="noopener">opendatahub-io/opendatahub-operator</a></td><td>107</td><td>Apache-2.0</td><td>Az OpenShift AI upstreamja (Open Data Hub)</td></tr>
+            <tr><th scope="row">ODH notebooks</th><td><a href="https://github.com/opendatahub-io/notebooks" target="_blank" rel="noopener">opendatahub-io/notebooks</a></td><td>34</td><td>Apache-2.0</td><td>A workbench-image-ek forrása (code-server is)</td></tr>
+            <tr><th scope="row">Kuadrant</th><td><a href="https://github.com/Kuadrant/kuadrant-operator" target="_blank" rel="noopener">Kuadrant/kuadrant-operator</a></td><td>90</td><td>Apache-2.0</td><td>A Connectivity Link / MaaS policy-motor upstreamja</td></tr>
+            <tr><th scope="row">Authorino</th><td><a href="https://github.com/Kuadrant/authorino" target="_blank" rel="noopener">Kuadrant/authorino</a></td><td>266</td><td>Apache-2.0</td><td>AuthN/AuthZ a gatewayen (API-kulcsok, OIDC)</td></tr>
+            <tr><th scope="row">Limitador</th><td><a href="https://github.com/Kuadrant/limitador" target="_blank" rel="noopener">Kuadrant/limitador</a></td><td>88</td><td>Apache-2.0</td><td>Token rate limiting (TokenRateLimitPolicy)</td></tr>
+            <tr><th scope="row">Kuadrant mcp-gateway</th><td><a href="https://github.com/Kuadrant/mcp-gateway" target="_blank" rel="noopener">Kuadrant/mcp-gateway</a></td><td>97</td><td>Apache-2.0</td><td>Az RHCL MCP gateway upstreamja (TP-funkció forrása)</td></tr>
+            <tr><th scope="row">ZTWIM</th><td><a href="https://github.com/openshift/zero-trust-workload-identity-manager" target="_blank" rel="noopener">openshift/zero-trust-workload-identity-manager</a></td><td>9</td><td>Apache-2.0</td><td>SPIRE-operátor OpenShiftre (Platform Plus)</td></tr>
+            <tr><th scope="row">SPIRE</th><td><a href="https://github.com/spiffe/spire" target="_blank" rel="noopener">spiffe/spire</a></td><td>2 489</td><td>Apache-2.0</td><td>Workload-identity upstream</td></tr>
+            <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Biztonság</th></tr>
+            <tr><th scope="row">Cilium</th><td><a href="https://github.com/cilium/cilium" target="_blank" rel="noopener">cilium/cilium</a></td><td>24 960</td><td>Apache-2.0</td><td>eBPF hálózat — Isovalent Enterprise Platform</td></tr>
+            <tr><th scope="row">Tetragon</th><td><a href="https://github.com/cilium/tetragon" target="_blank" rel="noopener">cilium/tetragon</a></td><td>4 929</td><td>Apache-2.0</td><td>Runtime security + FIM — Isovalent Runtime Security</td></tr>
+            <tr><th scope="row">Hubble</th><td><a href="https://github.com/cilium/hubble" target="_blank" rel="noopener">cilium/hubble</a></td><td>4 295</td><td>Apache-2.0</td><td>Hálózati observability</td></tr>
+            <tr><th scope="row">NeMo Guardrails</th><td><a href="https://github.com/NVIDIA-NeMo/Guardrails" target="_blank" rel="noopener">NVIDIA-NeMo/Guardrails</a></td><td>6 969</td><td>Apache-2.0</td><td>A guardrails-motor (RHOAI 3.4-ben GA)</td></tr>
+            <tr><th scope="row">FMS orchestrator</th><td><a href="https://github.com/foundation-model-stack/fms-guardrails-orchestrator" target="_blank" rel="noopener">foundation-model-stack/fms-guardrails-orchestrator</a></td><td>35</td><td>Apache-2.0</td><td>Detektor-zenekar (PII, HAP, prompt-injection)</td></tr>
+            <tr><th scope="row">TrustyAI</th><td><a href="https://github.com/trustyai-explainability/trustyai-service" target="_blank" rel="noopener">trustyai-explainability/trustyai-service</a></td><td>5</td><td>Apache-2.0</td><td>Responsible-AI szolgáltatás + guardrails-operátorok</td></tr>
+            <tr><th scope="row">Garak</th><td><a href="https://github.com/NVIDIA/garak" target="_blank" rel="noopener">NVIDIA/garak</a></td><td>8 848</td><td>Apache-2.0</td><td>LLM red teaming (a leondz/garak ide költözött)</td></tr>
+            <tr><th scope="row">ModelScan</th><td><a href="https://github.com/protectai/modelscan" target="_blank" rel="noopener">protectai/modelscan</a></td><td>763</td><td>Apache-2.0</td><td>Modellfájl-szkenner — 2026-02 óta mozdulatlan</td></tr>
+            <tr><th scope="row">lilith-zero</th><td><a href="https://github.com/BadC-mpany/lilith-zero" target="_blank" rel="noopener">BadC-mpany/lilith-zero</a></td><td>23</td><td>Apache-2.0</td><td>Az elemzett niche MCP-middleware (23 csillag)</td></tr>
+            <tr><th scope="row">OGX (ex-Llama Stack)</th><td><a href="https://github.com/ogx-ai/ogx" target="_blank" rel="noopener">ogx-ai/ogx</a></td><td>8 417</td><td>MIT</td><td>Ágens/RAG stack — a meta-llama/llama-stack ide irányít</td></tr>
+            <tr><th scope="row">OWASP LLM Top 10</th><td><a href="https://github.com/OWASP/www-project-top-10-for-large-language-model-applications" target="_blank" rel="noopener">OWASP/www-project-top-10-…</a></td><td>1 365</td><td>CC</td><td>Kockázati keretrendszer (LLM01 prompt injection…)</td></tr>
+            <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Munkaállomás, mérés, eszközök</th></tr>
+            <tr><th scope="row">code-server</th><td><a href="https://github.com/coder/code-server" target="_blank" rel="noopener">coder/code-server</a></td><td>78 932</td><td>MIT</td><td>A PoC workbench-editorja (RHOAI image: 4.104)</td></tr>
+            <tr><th scope="row">Coder v2</th><td><a href="https://github.com/coder/coder" target="_blank" rel="noopener">coder/coder</a></td><td>14 194</td><td><strong>AGPL-3.0</strong></td><td>CDE platform — jogi review kell (licenc-kontraszt!)</td></tr>
+            <tr><th scope="row">GuideLLM</th><td><a href="https://github.com/vllm-project/guidellm" target="_blank" rel="noopener">vllm-project/guidellm</a></td><td>1 525</td><td>Apache-2.0</td><td>LLM-benchmark — a 02. szakasz tervének eszköze</td></tr>
+            <tr><th scope="row">lm-evaluation-harness</th><td><a href="https://github.com/EleutherAI/lm-evaluation-harness" target="_blank" rel="noopener">EleutherAI/lm-evaluation-harness</a></td><td>13 708</td><td>MIT</td><td>Pontosság-evaluáció (Red Hat validáció is ezzel)</td></tr>
+            <tr><th scope="row">llm-compressor</th><td><a href="https://github.com/vllm-project/llm-compressor" target="_blank" rel="noopener">vllm-project/llm-compressor</a></td><td>3 696</td><td>Apache-2.0</td><td>Önkvantálás — a W8A8-út eszköze</td></tr>
+            <tr><th scope="row">GLM-5</th><td><a href="https://github.com/zai-org/GLM-5" target="_blank" rel="noopener">zai-org/GLM-5</a></td><td>6 997</td><td>Apache-2.0</td><td>A modell forrásrepója (a súlyok Hugging Face-en)</td></tr>
+            <tr><th scope="row">Claude Code</th><td><a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener">anthropics/claude-code</a></td><td>141 877</td><td><strong>nincs OSS licenc</strong></td><td>A coding-ágens — source-available, lásd ToS-megjegyzés</td></tr>
+          </tbody>
+        </table>
       </div>
       <div class="sources">
         <div class="sources__group">
