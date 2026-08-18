@@ -144,7 +144,10 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") hideTooltip();
   });
-  window.addEventListener("scroll", function () { if (!pinned) hideTooltip(); }, { passive: true });
+  window.addEventListener("scroll", function () {
+    /* Fókusz által kiváltott tooltip maradjon: a fókuszálás okozta görgetés ne tüntesse el. */
+    if (!pinned && document.activeElement !== activeTarget) hideTooltip();
+  }, { passive: true });
   window.addEventListener("resize", hideTooltip, { passive: true });
 
   /* ---------- 5 · Hálózati döntési widget ---------- */

@@ -245,6 +245,7 @@ strong { color: var(--color-ink); font-weight: 600; }
 }
 .topbar__menu summary::-webkit-details-marker { display: none; }
 .topbar__menu summary::after { content: "▾"; margin-inline-start: var(--space-2xs); color: var(--color-ink-3); }
+.topbar__menu summary:hover { border-color: var(--color-accent); color: var(--color-accent-deep); }
 .topbar__menu[open] summary { border-color: var(--color-accent); color: var(--color-accent-deep); }
 .topbar__toc {
   position: absolute; inset-inline-end: 0; top: calc(100% + var(--space-2xs));
@@ -493,6 +494,7 @@ strong { color: var(--color-ink); font-weight: 600; }
 .chip.is-active { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); font-weight: 600; }
 .chip:active, .topbar__menu summary:active { transform: translateY(1px); }
 .switch { display: inline-flex; align-items: center; gap: var(--space-xs); cursor: pointer; min-height: 44px; }
+.switch:hover .switch__label { color: var(--color-ink); }
 .switch input { width: 1.15rem; height: 1.15rem; accent-color: var(--color-accent); cursor: pointer; }
 .switch__label { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink-2); white-space: nowrap; }
 
@@ -638,6 +640,7 @@ button.cell:active { transform: translateY(1px); }
   min-height: 44px; cursor: pointer;
 }
 .widget__opt input { width: 1.15rem; height: 1.15rem; accent-color: var(--color-accent); cursor: pointer; flex-shrink: 0; }
+.widget__opt:hover { color: var(--color-ink); }
 .widget__result { min-height: 12rem; }
 .pattern-card {
   border: 1px solid var(--color-accent);
@@ -657,6 +660,7 @@ button.cell:active { transform: translateY(1px); }
 .pattern-card__title {
   font-family: var(--font-display); font-weight: 600; font-size: var(--text-md);
   color: var(--color-ink); margin: 0 0 var(--space-xs);
+  overflow-wrap: anywhere;
 }
 .pattern-card ul { margin: 0; padding-inline-start: var(--space-md); }
 .pattern-card li { font-size: var(--text-sm); color: var(--color-ink-2); margin-block-end: var(--space-2xs); }
@@ -797,5 +801,49 @@ a, button, summary, label { -webkit-tap-highlight-color: transparent; }
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* ---------- print (light scheme, no interactive chrome) ---------- */
+@media print {
+  :root {
+    --color-paper: oklch(99% 0.004 250);
+    --color-paper-2: oklch(97% 0.006 250);
+    --color-ink: oklch(22% 0.02 258);
+    --color-ink-2: oklch(32% 0.018 257);
+    --color-ink-3: oklch(45% 0.014 255);
+    --color-rule: oklch(88% 0.007 250);
+    --color-rule-2: oklch(80% 0.01 252);
+    --color-accent: oklch(45% 0.16 256);
+    --color-accent-deep: oklch(42% 0.15 258);
+    --color-accent-soft: oklch(94% 0.03 256);
+    --color-focus: oklch(45% 0.16 256);
+    --color-graphite: oklch(97% 0.006 250);
+    --color-graphite-2: oklch(86% 0.01 252);
+    --color-ondark: oklch(22% 0.02 258);
+    --color-ondark-2: oklch(34% 0.018 257);
+    --color-accent-on-dark: oklch(42% 0.16 256);
+    --color-logo-chip: oklch(97% 0.006 250);
+    --color-yes-bg: oklch(93% 0.035 152);
+    --color-yes-ink: oklch(38% 0.1 152);
+    --color-part-bg: oklch(94% 0.045 88);
+    --color-part-ink: oklch(40% 0.1 78);
+    --color-no-bg: oklch(94% 0.008 250);
+    --color-no-ink: oklch(44% 0.02 258);
+  }
+  html, body { background: var(--color-paper); }
+  body { font-size: 9.5pt; }
+  .rail, .topbar, .matrix-controls, .tooltip, .skip-link { display: none !important; }
+  .page, .colophon { margin-inline-start: 0 !important; }
+  .section { padding: var(--space-md) 0; max-width: none; }
+  .section__title, .subhead, h3 { break-after: avoid; }
+  tr, .glossary__item, .rec, .alt-card, .note-box, .stat, .diagram { break-inside: avoid; }
+  .matrix-wrap { overflow-x: visible; border-radius: 0; }
+  .matrix { min-width: 0; font-size: 7.5pt; }
+  .cell { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .sources__list a::after {
+    content: " — " attr(href);
+    font-family: var(--font-mono); font-size: 0.85em;
+    color: var(--color-ink-3); overflow-wrap: anywhere;
   }
 }

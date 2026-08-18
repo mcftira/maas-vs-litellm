@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
   <title>LLM gateway döntési anyag — Red Hat MaaS × LiteLLM × Azure AI Foundry · 2026. augusztus</title>
-  <meta name="description" content="Belső architektúra-döntési anyag nagy pénzintézet számára: Red Hat OpenShift AI MaaS, LiteLLM és Azure AI Foundry / APIM GenAI gateway összevetése — hálózat, biztonság, költség, ajánlás. Kutatás dátuma: 2026-08-17.">
+  <meta name="description" content="Belső architektúra-döntési anyag nagy pénzintézet számára: Red Hat OpenShift AI MaaS, LiteLLM és Azure AI Foundry / APIM GenAI gateway összevetése — hálózat, biztonság, költség, ajánlás. Kutatás dátuma: 2026-08-17/18.">
   <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
@@ -67,7 +68,7 @@
         <span class="logo-cell logo-cell--light"><img src="assets/logos/litellm.jpg" width="124" height="32" alt="LiteLLM logó"></span>
         <span class="logo-cell"><img src="assets/logos/azure.svg" width="34" height="34" alt="Microsoft Azure logó"></span>
         <span class="logo-cell"><img src="assets/logos/cilium.svg" width="34" height="34" alt="Cilium logó"></span>
-        <span class="logo-cell"><img src="assets/logos/tetragon.svg" width="112" height="34" alt="Tetragon logó"></span>
+        <span class="logo-cell logo-cell--light"><img src="assets/logos/tetragon.svg" width="112" height="34" alt="Tetragon logó"></span>
         <span class="logo-cell"><img src="assets/logos/kubernetes.svg" width="34" height="34" alt="Kubernetes logó"></span>
         <span class="logo-cell logo-cell--light"><img src="assets/logos/nvidia.svg" width="96" height="18" alt="NVIDIA logó"></span>
       </div>
@@ -113,13 +114,13 @@
       <div class="prose">
         <p>A jelenlegi platform egy on-prem <strong>OpenShift AI</strong> klaszter <strong>8× NVIDIA H100 80&nbsp;GB</strong> GPU-val (összesen 640&nbsp;GB GPU-memória), amelyen agentic coding workload fut — fejlesztői IDE-k és coding ágensek egy helyben kiszolgált <strong>GLM-5.2 modellt NVFP4-kvantálásban</strong> használnak (a platformcsapat megerősítése szerint stabilan, jól működik). A terv: <strong>Azure AI Foundry</strong> modellek bevonása ugyanabba a fogyasztási felületbe. A nyitott architektúra-kérdés: elég-e a fejlesztői laptopok hozzáférése mindkét végponthoz, vagy tűzfalnyitás kell az on-prem OpenShift és az AKS / Foundry közé. (A válasz: a 06. szakasz.)</p>
         <h3>Kapacitás-jegyzet — őszintén, mert architektúra-döntést befolyásol</h3>
-        <p>A GLM-5.2 kb. 744 milliárd paraméteres MoE-modell (1M token kontextus, MIT licenc, hivatalos FP8 checkpoint). A memória-aritmetika: <strong>az FP8 súlyok ~744&nbsp;GB-ot igényelnek, ami meghaladja az 8× H100 80&nbsp;GB = 640&nbsp;GB-ot</strong>. A dokumentált referencia-konfigurációk (vLLM recipe, SGLang-telepítési útmutatók) 8× H200-at (141&nbsp;GB GPU-nként) vagy több node-ot említenek. Az interneten keringő „8× H100-on elfér FP8-ban“ állításokat a számtan cáfolja.</p>
-        <p>Következmény — már nem feltételezés, hanem megerősített tény: a klaszteren <strong>GLM-5.2 NVFP4</strong> fut (NVIDIA 4-bites FP4-kvantálás, ~370–400&nbsp;GB), a csapat jelentése szerint jó minőségben; ez a gyakorlati válasz az FP8-as memória-falon. Nyitott kérdés a <strong>skálázás</strong>: konkurencia, hosszú kontextus és agentic terhelés mellett hol fogy el a maradék memória (KV-cache) — erre készül a benchmark-terv lentebb. A 2026-08-15-én bejelentett <strong>GLM-5.3</strong> ugyanazt a bázist használja több post-traininggel; nyílt súlyai a kutatás dátumáig (2026-08-17) még nem publikusak. FP8-os GLM-5.2/5.3-hoz tehát H200-as node vagy 2×8 H100 kell — ezt a 08. szakasz ütemterve rögzíti.</p>
+        <p>A GLM-5.2 kb. 744 milliárd paraméteres MoE-modell (1M token kontextus, MIT licenc, hivatalos FP8 checkpoint). A memória-aritmetika: <strong>az FP8 súlyok mért értéke 703,8&nbsp;GiB, ami meghaladja az 8× H100 80&nbsp;GB = 640&nbsp;GB-ot</strong> (~596&nbsp;GiB használható). A dokumentált referencia-konfigurációk (vLLM recipe, SGLang-telepítési útmutatók) 8× H200-at (141&nbsp;GB GPU-nként) vagy több node-ot említenek. Az interneten keringő „8× H100-on elfér FP8-ban“ állításokat a számtan cáfolja.</p>
+        <p>Következmény — már nem feltételezés, hanem megerősített tény: a klaszteren <strong>GLM-5.2 NVFP4</strong> fut (NVIDIA 4-bites FP4-kvantálás, a RedHatAI-kártya szerint ~401&nbsp;GiB), a csapat jelentése szerint jó minőségben; ez a gyakorlati válasz az FP8-as memória-falon. Nyitott kérdés a <strong>skálázás</strong>: konkurencia, hosszú kontextus és agentic terhelés mellett hol fogy el a maradék memória (KV-cache) — erre készül a benchmark-terv lentebb. A 2026-08-15-én bejelentett <strong>GLM-5.3</strong> ugyanazt a bázist használja több post-traininggel; nyílt súlyai a kutatás dátumáig (2026-08-17) még nem publikusak. FP8-os GLM-5.2/5.3-hoz tehát H200-as node vagy 2×8 H100 kell — ezt a 08. szakasz ütemterve rögzíti.</p>
       </div>
       <dl class="stat-strip">
         <div class="stat"><dt>8× H100 80&nbsp;GB</dt><dd class="stat__num">640&nbsp;GB</dd><dd class="stat__qual">összes GPU-memória a node-on</dd></div>
-        <div class="stat"><dt>GLM-5.2, FP8</dt><dd class="stat__num">~744&nbsp;GB</dd><dd class="stat__qual">csak a súlyok — nem fér el</dd></div>
-        <div class="stat"><dt>GLM-5.2, 4-bit</dt><dd class="stat__num">~370–400&nbsp;GB</dd><dd class="stat__qual">NVFP4 — a jelenlegi, megerősített konfig</dd></div>
+        <div class="stat"><dt>GLM-5.2, FP8</dt><dd class="stat__num">703,8&nbsp;GiB</dd><dd class="stat__qual">csak a súlyok — nem fér el</dd></div>
+        <div class="stat"><dt>GLM-5.2, 4-bit</dt><dd class="stat__num">~401&nbsp;GiB</dd><dd class="stat__qual">NVFP4 — a jelenlegi, megerősített konfig</dd></div>
         <div class="stat"><dt>GLM-4.5/4.6, FP8</dt><dd class="stat__num">~355&nbsp;GB</dd><dd class="stat__qual">355B-osztály — kényelmesen elfér</dd></div>
       </dl>
       <div class="note-box">
@@ -162,7 +163,7 @@
         <p>A PoC-ban a fejlesztők <strong>OpenShift AI workbencheken</strong> dolgoznak: böngészős VS Code (code-server), előre bekötve a LiteLLM-gatewayre (<code>ANTHROPIC_BASE_URL</code> + virtuális kulcs), Claude Code extensionnel. Tisztázandó félreértés: <strong>az OpenShift AI code-servere ugyanaz a coder/code-server OSS-projekt</strong> — a 3.4-támogatott image code-server 4.104-et (VS Code 1.104) tartalmaz, UBI9-re építve, nginx/oauth-proxy burkolattal, extensionök az Open VSX-ből (.vsix). A <strong>coder/coder (Coder v2) ezzel szemben egy másik termék</strong> ugyanattól a vendor-tól: nem editor, hanem workspace-orchestrációs platform (Terraform-templátek, tetszőleges IDE, quotas, audit). Aki „Coder"-t mond, nem feltétlenül ugyanarra gondol.</p>
         <p>Claude Code-megjegyzések a PoC-hoz: az extension a háttérben a <strong>CLI-t indítja</strong> — azt be kell égetni a workbench-image-be (Red Hat <a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.3/html/managing_openshift_ai/creating-custom-workbench-images" target="_blank" rel="noopener">custom workbench image útmutató</a>); a code-serveres extensionnek ismert bugjai vannak (2–4× lassabb, webview-hibák), az <strong>integrált terminálos CLI a megbízható út</strong>. Anthropic-oldali őszinte megjegyzés: a hivatalos gateway-doksi szerint az Anthropic „nem támogatja a Claude Code nem-Claude modellekre irányítását gatewayen át" — ez nem tilalom, hanem support-kizárás; az eddigi fellépések (2026-01) fogyasztói OAuth-spoofing és versenytárs-használat ellen szóltak, a mi mintánk (enterprise, saját modell LiteLLM mögött) nem ez — de a jogi/compliance csapat lássa el véleménnyel.</p>
       </div>
-      <div class="matrix-wrap">
+      <div class="matrix-wrap" tabindex="0">
         <table class="matrix matrix--license" id="coderMatrix">
           <caption class="visually-hidden">OpenShift AI workbenches vs Coder v2 összehasonlítás</caption>
           <thead>
@@ -325,7 +326,7 @@
 
       <h3 class="subhead">Enterprise-gating és ár</h3>
       <div class="prose">
-        <p>Enterprise-only funkciók: <strong>SSO (OIDC + SAML 2.0, utóbbi a v1.95.0 óta)</strong>, SCIM, audit logok retencióval, RBAC route-szabályozás, secret-manager integrációk (AWS KMS, GCP SM, Azure Key Vault, HashiCorp Vault), IP ACL, rate-limit tierek, kulcs-/csapat-szintű guardrails, log-export (GCS/Azure Blob). A licenc a <code>LITELLM_LICENSE</code> környezeti változóval aktiválható, 2 hetes ingyenes trial. <strong>Ár nem nyilvános</strong>; versenytárs-források (TrueFoundry, Layer3 Labs — <em>nem hivatalos forrás</em>) ~250 USD/hó (Basic) és ~30&nbsp;000 USD/év (Premium, SLA) nagyságrendet említenek.</p>
+        <p>Enterprise-only funkciók: <strong>SSO (OIDC + SAML 2.0, utóbbi a v1.95.0 óta)</strong>, SCIM, audit logok retencióval, RBAC route-szabályozás, secret-manager integrációk (AWS KMS, GCP SM, Azure Key Vault, HashiCorp Vault), IP ACL, rate-limit tierek (a feature-lista nem említi — ellenőrizendő), kulcs-/csapat-szintű guardrails, log-export (GCS/Azure Blob). A licenc a <code>LITELLM_LICENSE</code> környezeti változóval aktiválható, 2 hetes ingyenes trial. <strong>Ár nem nyilvános</strong>; versenytárs-források (TrueFoundry, Layer3 Labs — <em>nem hivatalos forrás</em>) ~250 USD/hó (Basic) és ~30&nbsp;000 USD/év (Premium, SLA) nagyságrendet említenek.</p>
         <p><strong>Ismert kritikák:</strong> breaking change-ek minor release-ekben migrációs útmutató nélkül; ~4&nbsp;970 nyitott GitHub-issue (2026-08-17); ~350–400&nbsp;MB memória-igény; az OSS-változathoz csak közösségi támogatás jár.</p>
       </div>
     </section>
@@ -351,7 +352,7 @@
           <span class="switch__label">csak a különbségek</span>
         </label>
       </div>
-      <div class="matrix-wrap">
+      <div class="matrix-wrap" tabindex="0">
         <table class="matrix" id="featureMatrix">
           <caption class="visually-hidden">Funkció-összehasonlító mátrix: Red Hat MaaS, LiteLLM OSS, LiteLLM Enterprise, Azure APIM GenAI gateway</caption>
           <thead>
@@ -435,14 +436,14 @@
               <td><button type="button" class="cell cell--yes" data-note="Microsoft Entra ID natívan.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/enterprise" target="_blank" rel="noopener">Audit-naplózás megfelelőségi célra</a></th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/enterprise" target="_blank" rel="noopener">Audit-naplózás megfelelőségi célra</a></th>
               <td><button type="button" class="cell cell--part" data-note="Használati metrikák vannak; audit-trail nem kiemelt képesség.">részben</button></td>
               <td><button type="button" class="cell cell--part" data-note="Részletes request-logok; retenció és audit-napló Enterprise.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Audit logs retencióval; GDPR-s kompatibilis log-szabályozás.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Azure Monitor / App Insights naplózás.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/enterprise" target="_blank" rel="noopener">Secret-manager integráció</a></th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/enterprise" target="_blank" rel="noopener">Secret-manager integráció</a></th>
               <td><button type="button" class="cell cell--no" data-note="Nem dokumentált.">✗</button></td>
               <td><button type="button" class="cell cell--no" data-note="Enterprise-funkció.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="AWS KMS, GCP Secret Manager, Azure Key Vault, HashiCorp Vault.">✓</button></td>
@@ -668,7 +669,7 @@
         <p>A „kell-e külön AI-security eszköz“ kérdést csak rétegenként lehet tisztességesen megválaszolni. A <strong>Cilium</strong> a hálózati szegmentálást és az L3–L7 policy-t fedi; a <strong>Tetragon</strong> eBPF-alapú runtime enforcement és megfigyelés (kernelben, folyamat-/fájl-/syscall-szinten, Kubernetes-identitással korrelálva; 2026 januárjától Windows-preview is). Ezek <strong>nem látnak LLM-szemantikát</strong>: kernel- és hálózati eseményeket vizsgálnak, nem promptokat. Az LLM-szemantikai fenyegetések (prompt injection, PII a promptban, tool-call visszaélés, token-governance) a <strong>gateway-rétegbe</strong> tartoznak — és ott már rendelkezésre állnak.</p>
       </div>
 
-      <div class="matrix-wrap">
+      <div class="matrix-wrap" tabindex="0">
         <table class="matrix matrix--threat" id="threatMatrix">
           <caption class="visually-hidden">Réteg-fedfési mátrix: fenyegetéstípusok × védelmi eszközök</caption>
           <thead>
@@ -738,7 +739,7 @@
       <div class="prose">
         <p>Mivel a teljes Red Hat- és Isovalent-portfólióra licencünk van, a kérdés nem „milyen AI-securityt vegyünk“, hanem „mit kell bekapcsolni“. Az alábbi tábla a licencen belüli fedezetet mutatja fenyegetésosztályonként. <strong>Az Isovalent oldalon nincs külön LLM-tartalom-szűrő termék</strong> — a Cilium/Tetragon az infrastruktúra-réteget védi (FQDN-egress, L7-policy, Tetragon FIM a modellfájlokon és tanítóadatokon, OWASP LLM01/03/04 és MITRE ATLAS szerint feltérképezve) —, az AI-tartalom réteg a Red Hat oldalon van, az OpenShift AI részeként, külön díj nélkül.</p>
       </div>
-      <div class="matrix-wrap">
+      <div class="matrix-wrap" tabindex="0">
         <table class="matrix matrix--license" id="licenseMatrix">
           <caption class="visually-hidden">Fenyegetésosztályok fedezete a meglévő Red Hat / Isovalent licencekkel</caption>
           <thead>
@@ -976,7 +977,7 @@
             <li><a href="https://docs.litellm.ai/docs/proxy/guardrails/quick_start" target="_blank" rel="noopener">LiteLLM docs — guardrails keret (Presidio, Lakera, Azure Content Safety…)</a> <span class="sources__date">2026</span></li>
             <li><a href="https://docs.litellm.ai/docs/mcp" target="_blank" rel="noopener">LiteLLM docs — MCP gateway</a> <span class="sources__date">2025-11-25</span></li>
             <li><a href="https://docs.litellm.ai/docs/a2a" target="_blank" rel="noopener">LiteLLM docs — A2A Agent Gateway (Foundry-ágensekkel)</a> <span class="sources__date">2026</span></li>
-            <li><a href="https://docs.litellm.ai/docs/proxy/enterprise" target="_blank" rel="noopener">LiteLLM docs — Enterprise-funkciók (SSO, SCIM, audit, secret-managerek)</a> <span class="sources__date">2026</span></li>
+            <li><a href="https://docs.litellm.ai/docs/enterprise" target="_blank" rel="noopener">LiteLLM docs — Enterprise-funkciók (SSO, SCIM, audit, secret-managerek)</a> <span class="sources__date">2026</span></li>
             <li><a href="https://docs.litellm.ai/blog/security-update-march-2026" target="_blank" rel="noopener">LiteLLM — hivatalos incidensjelentés (PyPI supply-chain, TeamPCP)</a> <span class="sources__date">2026-03-30</span></li>
             <li><a href="https://www.endorlabs.com/learn/teampcp-isnt-done" target="_blank" rel="noopener">Endor Labs — TeamPCP-elemzés</a> <span class="sources__date">2026-03-30</span></li>
             <li><a href="https://threataft.com/articles/cve-2026-42271-litellm-ai-gateway-active-exploitation" target="_blank" rel="noopener">ThreatAft — CVE-2026-42271 (unauth RCE, CISA KEV)</a> <span class="sources__date">2026-06-09</span></li>
@@ -1093,7 +1094,7 @@
         <div class="glossary__item"><dt>ExpressRoute</dt><dd>Dedikált privát vonal a vállalati hálózat és az Azure közé; a Private Link + ExpressRoute a C minta alapja.</dd></div>
         <div class="glossary__item"><dt>FIM (File Integrity Monitoring)</dt><dd>Fájlintegritás-figyelés — a Tetragonnal a modell- és tanítófájlokon (adatmérgezés-detektálás).</dd></div>
         <div class="glossary__item"><dt>FMS Guardrails Orchestrator</dt><dd>TrustyAI-operált detektor-zenekar: regex-PII, HAP (granite-guardian), DeBERTa prompt-injection detektor. GA a 3.4-ben.</dd></div>
-        <div class="glossary__item"><dt>FP8 / BF16 / 4-bit (NVFP4)</dt><dd>Modellsúly-tárolási pontosságok; a memóriaigényt határozzák meg — a GLM-5.2 FP8 ~744 GB (nem fér el 8× H100-on), NVFP4-ben ~370–400 GB (a jelenlegi konfig).</dd></div>
+        <div class="glossary__item"><dt>FP8 / BF16 / 4-bit (NVFP4)</dt><dd>Modellsúly-tárolási pontosságok; a memóriaigényt határozzák meg — a GLM-5.2 FP8 ~703,8 GiB (nem fér el 8× H100-on), NVFP4-ben ~401 GiB (a jelenlegi konfig).</dd></div>
         <div class="glossary__item"><dt>GA (General Availability)</dt><dd>Általános rendelkezésre állás — production SLA-val, támogatással. Ellentéte: Technology Preview.</dd></div>
         <div class="glossary__item"><dt>Garak</dt><dd>LLM red-teaming keretrendszer (120+ probe); OpenShift AI-komponens, TP-státuszban.</dd></div>
         <div class="glossary__item"><dt>Gen AI studio</dt><dd>Az OpenShift AI felülete: modell-felfedezés, AI asset endpoints, MaaS API-kulcsok self-service módon.</dd></div>
