@@ -243,3 +243,44 @@
     renderPattern();
   }
 })();
+
+
+/* ---------- capacity chart (Chart.js v4.5.1, vendored: assets/vendor/chart.umd.js) ---------- */
+(function () {
+  var el = document.getElementById("capChart");
+  if (!el || typeof Chart === "undefined") return;
+  var cs = getComputedStyle(document.documentElement);
+  var v = function (n) { return cs.getPropertyValue(n).trim(); };
+  new Chart(el, {
+    type: "bar",
+    data: {
+      labels: ["GLM-5.2 FP8", "GLM-5.2 W8A8", "GLM-5.2 NVFP4 (jelenlegi)", "8× H100 keret (~640 GB)"],
+      datasets: [{
+        data: [703.8, 704.4, 401, 596],
+        backgroundColor: [v("--color-ink-3"), v("--color-ink-3"), v("--color-accent"), v("--color-part-ink")],
+        borderColor: [v("--color-rule-2"), v("--color-rule-2"), v("--color-accent"), v("--color-part-ink")],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function (c) { return c.parsed.x + " GiB"; } } }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "GPU-memória (GiB)", color: v("--color-ink-3") },
+          grid: { color: v("--color-rule") },
+          ticks: { color: v("--color-ink-3") }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: v("--color-ink-2"), font: { family: v("--font-mono") } }
+        }
+      }
+    }
+  });
+})();

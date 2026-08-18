@@ -1,0 +1,9 @@
+%%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#16202e", "primaryBorderColor": "#3b82c4", "primaryTextColor": "#e8eef5", "lineColor": "#8fa3b8", "secondaryColor": "#16202e", "tertiaryColor": "#16202e", "fontFamily": "JetBrains Mono, monospace", "fontSize": "13px", "clusterBkg": "transparent", "clusterBorder": "#3b4a5e", "edgeLabelBackground": "#16202e"}, "flowchart": {"htmlLabels": false}}}%%
+flowchart TD
+  s1["1 · Igény megerősítése<br/>W8A8 8× H100-on lehetetlen"] --> s2["2 · Forrásbeszerzés staging-enklávéban<br/>SHA-256 shardonként vagy önkvantálás llm-compressorrel"]
+  s2 --> s3["3 · Biztonsági szűrés<br/>ModelScan · chat_template review · licenc"]
+  s3 --> s4["4 · Belső tükör + model registry<br/>S3 vagy cosign-aláírt OCI modelcar"]
+  s4 --> s5["5 · Funkcionális validáció 2×8 H100-on<br/>lm-eval + GuideLLM baseline"]
+  s5 --> s6["6 · Élesítési edzés<br/>auth · route-policy · NVFP4-rollback"]
+  s6 --> s7["7 · Párhuzamos TAM-sáv<br/>Red Hat-validáció kérése"]
+  style s5 fill:#0f2f4a,stroke:#5ac8e0,color:#e8eef5

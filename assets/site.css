@@ -1,6 +1,7 @@
 /* Hallmark · redesign (visual layer only — content/IA frozen) · macrostructure: Long Document (02) · theme: Midnight (dark custom on catalog name) · nav: N3 Side-rail · footer: Ft4 Dense colophon · genre: modern-minimal
  * Theme axes vs previous (Cobalt: light paper · grotesk-sans · cool accent): Midnight flips the paper band light→dark; display stays grotesk-sans, accent stays cool cyan-azure — differs on the paper band, per explicit user request ("different, cooler theme").
  * Midnight notes: deep-navy paper; the former dark band (08 Ajánlás) inverts to a light band via the graphite/ondark token flip; status chips reworked for dark; body font Inter→Geist.
+ * Integrated OSS components (2026-08-18): Mermaid (diagrams, in-repo .mmd sources → build-time SVG), Chart.js v4.5.1 (capacity chart, vendored), Lucide (label icons, CSS-masked).
  * Hallmark · pre-emit critique: P5 H4 E5 S5 R4 V4 · contrast: pass (OKLCH→sRGB→WCAG, computed) · tokens: pass (48) · responsive: pass (34, 49–57) · honest: pass (46)
  */
 
@@ -378,10 +379,17 @@ strong { color: var(--color-ink); font-weight: 600; }
   background: var(--color-paper-2);
 }
 .note-box__label {
+  display: flex; align-items: center; gap: var(--space-2xs);
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--color-accent-deep);
   margin: 0 0 var(--space-2xs);
+}
+.note-box__label::before {
+  content: ""; width: 0.95em; height: 0.95em; flex-shrink: 0;
+  background: currentColor;
+  -webkit-mask: url("icons/info.svg") center / contain no-repeat;
+  mask: url("icons/info.svg") center / contain no-repeat;
 }
 .note-box p:last-child, .note-box ul:last-child { margin-block-end: 0; }
 .callout {
@@ -393,9 +401,16 @@ strong { color: var(--color-ink); font-weight: 600; }
   background: var(--color-accent-soft);
 }
 .callout__label {
+  display: flex; align-items: center; gap: var(--space-2xs);
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--color-accent-deep); margin: 0 0 var(--space-2xs);
+}
+.callout__label::before {
+  content: ""; width: 0.95em; height: 0.95em; flex-shrink: 0;
+  background: currentColor;
+  -webkit-mask: url("icons/triangle-alert.svg") center / contain no-repeat;
+  mask: url("icons/triangle-alert.svg") center / contain no-repeat;
 }
 .callout__big {
   font-family: var(--font-display); font-weight: 600;
@@ -576,6 +591,22 @@ button.cell:active { transform: translateY(1px); }
 }
 .tooltip.is-visible { opacity: 1; visibility: visible; }
 
+/* ---------- chart box (Chart.js, vendored) ---------- */
+.chart-box {
+  margin: var(--space-lg) 0 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  max-width: 52rem;
+  background: var(--color-paper-2);
+}
+.chart-box__label {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-ink-3); margin-block-end: var(--space-sm);
+}
+.chart-box__inner { position: relative; height: 15rem; }
+
 /* ---------- diagrams ---------- */
 .diagram {
   margin: var(--space-lg) 0;
@@ -598,6 +629,8 @@ button.cell:active { transform: translateY(1px); }
 }
 .diagram__when { font-size: var(--text-sm); color: var(--color-ink-2); max-width: 68ch; margin: var(--space-sm) 0 0; }
 .dia { display: block; width: 100%; height: auto; }
+.dia-img { display: block; width: 100%; max-width: 52rem; height: auto; }
+.diagram__src { margin-inline-start: auto; font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 400; color: var(--color-ink-3); }
 .dia-box { fill: var(--color-paper-2); stroke: var(--color-rule-2); stroke-width: 1; }
 .dia-box--strong { fill: var(--color-accent-soft); stroke: var(--color-accent); }
 .dia-cluster { fill: none; stroke: var(--color-rule-2); stroke-width: 1; stroke-dasharray: 5 4; }

@@ -9,6 +9,7 @@
   <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/vendor/chart.umd.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#osszefoglalo">Ugrás a tartalomra</a>
@@ -123,6 +124,10 @@
         <div class="stat"><dt>GLM-5.2, 4-bit</dt><dd class="stat__num">~401&nbsp;GiB</dd><dd class="stat__qual">NVFP4 — a jelenlegi, megerősített konfig</dd></div>
         <div class="stat"><dt>GLM-4.5/4.6, FP8</dt><dd class="stat__num">~355&nbsp;GB</dd><dd class="stat__qual">355B-osztály — kényelmesen elfér</dd></div>
       </dl>
+      <figure class="chart-box">
+        <figcaption class="chart-box__label">GPU-memória: súlyok vs keret (GiB, mért értékek — HF/ModelScope, 2026-08-18) · Chart.js</figcaption>
+        <div class="chart-box__inner"><canvas id="capChart" role="img" aria-label="Oszlopdiagram: GLM-5.2 FP8 703,8 GiB és W8A8 704,4 GiB nem fér el a 8x H100 ~596 GiB kereten, NVFP4 401 GiB igen."></canvas></div>
+      </figure>
       <div class="note-box">
         <p class="note-box__label">Benchmark-terv — hogyan skálázódik az NVFP4-es GLM-5.2</p>
         <ul class="tick-list tick-list--plain">
@@ -157,6 +162,10 @@
           <li><strong>Párhuzamos sáv.</strong> Red Hat case/TAM: (a) GLM-5.2 W8A8 validálásának kérése (a 4.6-os precedens miatt reális), (b) a nem katalógusos, ügyfél-deployolt modellek support-státuszának írásbeli megerősítése.</li>
         </ol>
       </div>
+      <figure class="diagram">
+        <figcaption class="diagram__head"><span class="diagram__tag">Folyamat</span> Import és validáció 7 lépésben <span class="diagram__src">Mermaid-forrás: <code>diagrams/import-flow.mmd</code></span></figcaption>
+        <img class="dia-img" src="assets/diagrams/import-flow.svg" alt="A nem Red Hat-validált modell import-folyamata hét lépésben: igény megerősítése, forrásbeszerzés SHA-256-tal vagy önkvantálás, biztonsági szűrés, belső tükör és model registry, funkcionális validáció 2x8 H100-on, élesítési edzés, párhuzamos TAM-sáv.">
+      </figure>
 
       <h3 class="subhead">Fejlesztői workbenchek — code-server vs Coder <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
       <div class="prose">
@@ -536,99 +545,20 @@
       </div>
 
       <figure class="diagram">
-        <figcaption class="diagram__head"><span class="diagram__tag">A minta</span> Csak laptopos hozzáférés</figcaption>
-        <svg class="dia" viewBox="0 0 720 300" role="img" aria-labelledby="diaA-title">
-          <title id="diaA-title">A minta: a fejlesztői laptop külön-külön éri el az on-prem OpenShift AI GLM-végpontot (LAN/VPN) és az Azure AI Foundry publikus végpontját (TLS 443). Klaszter és Azure között nincs adatútvonal.</title>
-          <defs>
-            <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dia-arrowhead"/></marker>
-          </defs>
-          <rect x="30" y="110" width="180" height="70" rx="6" class="dia-box"/>
-          <text x="120" y="140" text-anchor="middle" class="dia-label">Fejlesztői laptop</text>
-          <text x="120" y="160" text-anchor="middle" class="dia-sub">IDE · coding ágens</text>
-          <rect x="480" y="30" width="220" height="80" rx="6" class="dia-box dia-box--strong"/>
-          <text x="590" y="60" text-anchor="middle" class="dia-label">On-prem OpenShift AI</text>
-          <text x="590" y="80" text-anchor="middle" class="dia-sub">GLM · vLLM · 8× H100</text>
-          <rect x="480" y="200" width="220" height="80" rx="6" class="dia-box"/>
-          <text x="590" y="230" text-anchor="middle" class="dia-label">Azure AI Foundry</text>
-          <text x="590" y="250" text-anchor="middle" class="dia-sub">PaaS · Microsoft-hostolt</text>
-          <path d="M210,128 C 330,112 360,70 478,70" class="dia-flow" marker-end="url(#arrA)"/>
-          <text x="330" y="92" text-anchor="middle" class="dia-flowlabel">LAN / VPN</text>
-          <path d="M210,152 C 330,168 360,240 478,240" class="dia-flow" marker-end="url(#arrA)"/>
-          <text x="345" y="214" text-anchor="middle" class="dia-flowlabel">TLS 443 · publikus végpont</text>
-          <path d="M590,112 L590,198" class="dia-flow dia-flow--no"/>
-          <path d="M582,147 L598,163 M598,147 L582,163" class="dia-cross"/>
-          <text x="590" y="294" text-anchor="middle" class="dia-notelabel">nincs OCP ↔ Azure adatútvonal</text>
-        </svg>
+        <figcaption class="diagram__head"><span class="diagram__tag">A minta</span> Csak laptopos hozzáférés <span class="diagram__src">Mermaid-forrás: <code>diagrams/pattern-a.mmd</code></span></figcaption>
+        <img class="dia-img" src="assets/diagrams/pattern-a.svg" alt="A minta: a fejlesztői laptop külön-külön éri el az on-prem OpenShift AI GLM-végpontot (LAN/VPN) és az Azure AI Foundry publikus végpontját (TLS 443). Klaszter és Azure között nincs adatútvonal.">
         <p class="diagram__when"><strong>Mikor kell ez?</strong> Amikor a modellek egyetlen fogyasztói az emberi fejlesztők (IDE, coding ágens). Minden laptop önállóan éri el mindkét végpontot; klaszter-szintű Azure-kapcsolat, tűzfalnyitás, ExpressRoute nem kell. Ez a mai állapot.</p>
       </figure>
 
       <figure class="diagram">
-        <figcaption class="diagram__head"><span class="diagram__tag">B minta</span> Klaszter-gateway + egress FQDN-allowlist</figcaption>
-        <svg class="dia" viewBox="0 0 720 320" role="img" aria-labelledby="diaB-title">
-          <title id="diaB-title">B minta: az OpenShift klaszterben futó LiteLLM gateway, ágensek és pipeline-ok a vállalati egress proxyn és FQDN-allowlisten át, TLS 443-on érik el a Foundry publikus végpontját.</title>
-          <defs>
-            <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dia-arrowhead"/></marker>
-          </defs>
-          <rect x="20" y="24" width="280" height="206" rx="8" class="dia-cluster"/>
-          <text x="36" y="46" class="dia-clusterlabel">On-prem OpenShift klaszter</text>
-          <rect x="40" y="58" width="120" height="52" rx="6" class="dia-box dia-box--strong"/>
-          <text x="100" y="80" text-anchor="middle" class="dia-label">LiteLLM</text>
-          <text x="100" y="97" text-anchor="middle" class="dia-sub">gateway</text>
-          <rect x="170" y="58" width="110" height="52" rx="6" class="dia-box"/>
-          <text x="225" y="80" text-anchor="middle" class="dia-label">Ágensek</text>
-          <text x="225" y="97" text-anchor="middle" class="dia-sub">pipeline-ok</text>
-          <rect x="40" y="138" width="120" height="52" rx="6" class="dia-box"/>
-          <text x="100" y="160" text-anchor="middle" class="dia-label">GLM · vLLM</text>
-          <text x="100" y="177" text-anchor="middle" class="dia-sub">8× H100</text>
-          <rect x="170" y="138" width="110" height="52" rx="6" class="dia-box"/>
-          <text x="225" y="160" text-anchor="middle" class="dia-label">Fejlesztői</text>
-          <text x="225" y="177" text-anchor="middle" class="dia-sub">laptop</text>
-          <path d="M160,164 L168,112" class="dia-flow dia-flow--inner" marker-end="url(#arrB)"/>
-          <path d="M100,110 L100,136" class="dia-flow dia-flow--inner" marker-end="url(#arrB)"/>
-          <rect x="360" y="100" width="150" height="64" rx="6" class="dia-box"/>
-          <text x="435" y="126" text-anchor="middle" class="dia-label">Egress proxy</text>
-          <text x="435" y="144" text-anchor="middle" class="dia-sub">FQDN allowlist</text>
-          <rect x="560" y="92" width="150" height="80" rx="6" class="dia-box"/>
-          <text x="635" y="118" text-anchor="middle" class="dia-label">Foundry végpont</text>
-          <text x="635" y="136" text-anchor="middle" class="dia-sub">PNA: engedélyezve /</text>
-          <text x="635" y="152" text-anchor="middle" class="dia-sub">Selected networks</text>
-          <path d="M300,132 L358,132" class="dia-flow" marker-end="url(#arrB)"/>
-          <path d="M510,132 L558,132" class="dia-flow" marker-end="url(#arrB)"/>
-          <text x="534" y="122" text-anchor="middle" class="dia-flowlabel">TLS 443</text>
-        </svg>
+        <figcaption class="diagram__head"><span class="diagram__tag">B minta</span> Klaszter-gateway + egress FQDN-allowlist <span class="diagram__src">Mermaid-forrás: <code>diagrams/pattern-b.mmd</code></span></figcaption>
+        <img class="dia-img" src="assets/diagrams/pattern-b.svg" alt="B minta: az OpenShift klaszterben futó LiteLLM gateway, ágensek és pipeline-ok a vállalati egress proxyn és FQDN-allowlisten át, TLS 443-on érik el a Foundry publikus végpontját.">
         <p class="diagram__when"><strong>Mikor kell ez?</strong> Amikor klaszterben futó workloadok (pipeline-ok, ágensek, a LiteLLM gateway) hívják a Foundryt szerver-oldalon, <em>és</em> a publikus végpont TLS felett elfogadható. A titkosított kimenő forgalom egy kontrollált egress-ponton, FQDN-szűkítéssel megy — ez a leggyorsabban bevezethető szerver-oldali minta.</p>
       </figure>
 
       <figure class="diagram">
-        <figcaption class="diagram__head"><span class="diagram__tag">C minta</span> Private Link ExpressRoute-on + DNS-resolver</figcaption>
-        <svg class="dia" viewBox="0 0 720 340" role="img" aria-labelledby="diaC-title">
-          <title id="diaC-title">C minta: a klaszter ExpressRoute-on (vagy S2S VPN-en) keresztül, privát végponton éri el a Foundryt; a privatelink DNS-zónát az Azure Private DNS Resolver oldja fel az on-prem DNS felé.</title>
-          <defs>
-            <marker id="arrC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dia-arrowhead"/></marker>
-          </defs>
-          <rect x="20" y="40" width="200" height="64" rx="6" class="dia-box dia-box--strong"/>
-          <text x="120" y="66" text-anchor="middle" class="dia-label">On-prem OpenShift</text>
-          <text x="120" y="84" text-anchor="middle" class="dia-sub">LiteLLM gateway</text>
-          <path d="M220,72 L478,72" class="dia-pipe"/>
-          <path d="M470,64 L486,72 L470,80" class="dia-pipehead"/>
-          <text x="350" y="58" text-anchor="middle" class="dia-flowlabel">ExpressRoute / S2S VPN</text>
-          <rect x="480" y="40" width="220" height="64" rx="6" class="dia-box"/>
-          <text x="590" y="66" text-anchor="middle" class="dia-label">Azure VNet</text>
-          <text x="590" y="84" text-anchor="middle" class="dia-sub">Private Endpoint</text>
-          <rect x="480" y="200" width="220" height="64" rx="6" class="dia-box"/>
-          <text x="590" y="226" text-anchor="middle" class="dia-label">Azure AI Foundry</text>
-          <text x="590" y="244" text-anchor="middle" class="dia-sub">PNA: Disabled</text>
-          <path d="M590,104 L590,198" class="dia-flow" marker-end="url(#arrC)"/>
-          <text x="582" y="156" text-anchor="end" class="dia-flowlabel">privát IP</text>
-          <rect x="20" y="200" width="200" height="56" rx="6" class="dia-box"/>
-          <text x="120" y="233" text-anchor="middle" class="dia-label">On-prem DNS</text>
-          <rect x="260" y="200" width="180" height="56" rx="6" class="dia-box"/>
-          <text x="350" y="222" text-anchor="middle" class="dia-label">Azure Private</text>
-          <text x="350" y="240" text-anchor="middle" class="dia-sub">DNS Resolver</text>
-          <path d="M220,228 L258,228" class="dia-flow dia-flow--dns" marker-end="url(#arrC)"/>
-          <path d="M440,226 C 500,226 545,150 562,106" class="dia-flow dia-flow--dns" marker-end="url(#arrC)"/>
-          <text x="508" y="182" text-anchor="middle" class="dia-flowlabel dia-flowlabel--dns">privatelink.* A-rekord</text>
-        </svg>
+        <figcaption class="diagram__head"><span class="diagram__tag">C minta</span> Private Link ExpressRoute-on + DNS-resolver <span class="diagram__src">Mermaid-forrás: <code>diagrams/pattern-c.mmd</code></span></figcaption>
+        <img class="dia-img" src="assets/diagrams/pattern-c.svg" alt="C minta: a klaszter ExpressRoute-on (vagy S2S VPN-en) keresztül, privát végponton éri el a Foundryt; a privatelink DNS-zónát az Azure Private DNS Resolver oldja fel az on-prem DNS felé.">
         <p class="diagram__when"><strong>Mikor kell ez?</strong> Amikor a publikus végpont szabályozási vagy biztonsági okból nem megengedett (PNA: Disabled). A Foundry privát IP-n érhető el az Azure VNeten belül; az on-prem felé ExpressRoute/S2S VPN és DNS-forwarding kell. Ez a legszigorúbb — és legdrágább, leglassabban bevezethető — minta.</p>
       </figure>
 
@@ -976,6 +906,11 @@
             <tr><th scope="row">llm-compressor</th><td><a href="https://github.com/vllm-project/llm-compressor" target="_blank" rel="noopener">vllm-project/llm-compressor</a></td><td>3 696</td><td>Apache-2.0</td><td>Önkvantálás — a W8A8-út eszköze</td></tr>
             <tr><th scope="row">GLM-5</th><td><a href="https://github.com/zai-org/GLM-5" target="_blank" rel="noopener">zai-org/GLM-5</a></td><td>6 997</td><td>Apache-2.0</td><td>A modell forrásrepója (a súlyok Hugging Face-en)</td></tr>
             <tr><th scope="row">Claude Code</th><td><a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener">anthropics/claude-code</a></td><td>141 877</td><td><strong>nincs OSS licenc</strong></td><td>A coding-ágens — source-available, lásd ToS-megjegyzés</td></tr>
+            <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Az oldal eszköztára (beépített OSS-komponensek)</th></tr>
+            <tr><th scope="row">Mermaid</th><td><a href="https://github.com/mermaid-js/mermaid" target="_blank" rel="noopener">mermaid-js/mermaid</a></td><td>89 832</td><td>MIT</td><td>Diagram-as-code — a 02/06. szakasz ábrái .mmd forrásból</td></tr>
+            <tr><th scope="row">mermaid-cli</th><td><a href="https://github.com/mermaid-js/mermaid-cli" target="_blank" rel="noopener">mermaid-js/mermaid-cli</a></td><td>4 945</td><td>MIT</td><td>Build-time SVG-render (az oldal statikus marad)</td></tr>
+            <tr><th scope="row">Chart.js</th><td><a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener">chartjs/Chart.js</a></td><td>67 639</td><td>MIT</td><td>A 02. szakasz kapacitás-grafikonja (vendorolt, CDN nélkül)</td></tr>
+            <tr><th scope="row">Lucide</th><td><a href="https://github.com/lucide-icons/lucide" target="_blank" rel="noopener">lucide-icons/lucide</a></td><td>24 019</td><td>ISC</td><td>A jelölés-ikonok (note-box / callout)</td></tr>
           </tbody>
         </table>
       </div>
@@ -1141,6 +1076,7 @@
         <div class="glossary__item"><dt>APIM (Azure API Management)</dt><dd>Az Azure API-gatewaye; GenAI policy-kkal (token-limit, llm-content-safety, semantic cache) LLM-gateway-ként is üzemel.</dd></div>
         <div class="glossary__item"><dt>Authorino</dt><dd>A Kuadrant hitelesítési komponense: API-kulcs-, OIDC- és jogosultság-kezelés a gatewayen.</dd></div>
         <div class="glossary__item"><dt>Chargeback / showback</dt><dd>Showback: költség-kimutatás számlázás nélkül (a MaaS ezt tudja, TP); chargeback: tényleges továbbszámlázás a fogyasztónak.</dd></div>
+        <div class="glossary__item"><dt><a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener">Chart.js</a></dt><dd>MIT-licencű canvas-grafikonkönyvtár; az oldal kapacitás-diagramja ezt használja (helyben vendorolva).</dd></div>
         <div class="glossary__item"><dt>Cisco AI Defense</dt><dd>A Cisco AI-biztonsági platformja (Discovery / red teaming / runtime guardrails, MCP-audit a v2-ben) — külön SKU, nem része az Isovalent-licencnek.</dd></div>
         <div class="glossary__item"><dt><a href="https://cilium.io/" target="_blank" rel="noopener">Cilium</a></dt><dd>eBPF-alapú Kubernetes-hálózat (CNI): identitás-alapú L3–L7 policy, FQDN-egress, Hubble-megfigyelés. Isovalent Enterprise Platform Networking-pillére.</dd></div>
         <div class="glossary__item"><dt><a href="https://docs.cilium.io/en/stable/network/clustermesh/intro/" target="_blank" rel="noopener">Cluster Mesh</a></dt><dd>Cilium-funkció: több klaszter pod-hálózatának összekapcsolása, globális service-ekkel. PaaS-API fogyasztásához nem kell.</dd></div>
@@ -1169,7 +1105,9 @@
         <div class="glossary__item"><dt>Kuadrant</dt><dd>Gateway API policy-motor (Authorino + Limitador); a Red Hat Connectivity Link és a MaaS gateway-alapja.</dd></div>
         <div class="glossary__item"><dt>Limitador</dt><dd>A Kuadrant rate-limit komponense; a <a href="https://developers.redhat.com/articles/2026/02/18/manage-ai-resource-use-tokenratelimitpolicy" target="_blank" rel="noopener">TokenRateLimitPolicy</a> tényleges tokeneket számlál a válaszokból.</dd></div>
         <div class="glossary__item"><dt>llm-d</dt><dd>Disztribuált vLLM-inferencia (prefill/decode szétválasztás, KV-cache-tudatos routing); CNCF sandbox — a MaaS GA runtime-ja.</dd></div>
+        <div class="glossary__item"><dt><a href="https://github.com/lucide-icons/lucide" target="_blank" rel="noopener">Lucide</a></dt><dd>ISC-licencű ikonkészlet; az oldal jelölés-ikonjai innen származnak.</dd></div>
         <div class="glossary__item"><dt>MaaS (Models-as-a-Service)</dt><dd>Az OpenShift AI self-service modell-hozzáférése: subscripciók, API-kulcsok, token-kvóták. GA 3.4-től.</dd></div>
+        <div class="glossary__item"><dt><a href="https://github.com/mermaid-js/mermaid" target="_blank" rel="noopener">Mermaid</a></dt><dd>Diagram-as-code: szöveges forrásból SVG — az oldal architektúra-ábrái így készülnek (diagrams/*.mmd a repóban).</dd></div>
         <div class="glossary__item"><dt><a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener">MCP (Model Context Protocol)</a></dt><dd>Az Anthropic által iniciált, ma LF/AAIF-governance alatt álló protokoll: eszközök és context szabványos csatlakoztatása az LLM-ekhez.</dd></div>
         <div class="glossary__item"><dt>MoE (Mixture of Experts)</dt><dd>Ritka aktivációjú modellarchitektúra: sok paraméterből kevés aktív tokenenként (GLM-5.2: ~744B összes, ~40B aktív).</dd></div>
         <div class="glossary__item"><dt><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/enabling_ai_safety_with_guardrails/enabling-ai-safety-with-nemo-guardrails_nemo-guardrails" target="_blank" rel="noopener">NeMo Guardrails</a></dt><dd>Az NVIDIA guardrails-kerete: rail-ek, Presidio PII, jailbreak-konfig; az OpenShift AI 3.4-ben GA, TrustyAI-operátorral.</dd></div>
@@ -1201,7 +1139,7 @@
   <footer class="colophon">
     <p>Készült: 2026. augusztus · belső architektúra-döntési anyag · kutatás dátuma: 2026-08-17/18 · nem minősített. Az anyag statikus oldal, külső szkript vagy nyomkövető nélkül; forrás: <a href="https://github.com/mcftira/maas-vs-litellm" target="_blank" rel="noopener">github.com/mcftira/maas-vs-litellm</a>.</p>
     <p>A logók az azokat birtokló cégek védjegyei: Red Hat és OpenShift — Red Hat, Inc.; LiteLLM — BerriAI, Inc.; Azure — Microsoft; Cilium és Tetragon — Isovalent, Inc. / The Linux Foundation (CNCF); Kubernetes — The Linux Foundation; NVIDIA — NVIDIA Corporation. Kizárólag azonosítási és összehasonlítási céllal, a hivatalos forrásokból (CNCF artwork repo, Wikimedia Commons, gyártói repók); részletek: <code>assets/logos/ATTRIBUTION.md</code>. A védjegyek használata nem jelent támogatást vagy jóváhagyást.</p>
-    <p>Tipográfia: Space Grotesk (display), Geist (szöveg), JetBrains Mono (jelölések) — helyben kiszolgált woff2-példányok. Minden szám a 10. szakaszban hivatkozott, dátumozott forrásokból származik; a nem hivatalos adatok a helyükön külön jelölve.</p>
+    <p>Tipográfia: Space Grotesk (display), Geist (szöveg), JetBrains Mono (jelölések) — helyben kiszolgált woff2-példányok. Beépített OSS-komponensek: <a href="https://github.com/mermaid-js/mermaid" target="_blank" rel="noopener">Mermaid</a> (diagramok, a források a <code>diagrams/</code> könyvtárban), <a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener">Chart.js</a> v4.5.1 (kapacitás-grafikon, vendorolva), <a href="https://github.com/lucide-icons/lucide" target="_blank" rel="noopener">Lucide</a> (ikonok). Minden szám a 10. szakaszban hivatkozott, dátumozott forrásokból származik; a nem hivatalos adatok a helyükön külön jelölve.</p>
   </footer>
 
   <script src="assets/site.js" defer></script>

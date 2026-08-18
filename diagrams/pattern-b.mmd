@@ -1,0 +1,16 @@
+%%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#16202e", "primaryBorderColor": "#3b82c4", "primaryTextColor": "#e8eef5", "lineColor": "#8fa3b8", "secondaryColor": "#16202e", "tertiaryColor": "#16202e", "fontFamily": "JetBrains Mono, monospace", "fontSize": "13px", "clusterBkg": "transparent", "clusterBorder": "#3b4a5e", "edgeLabelBackground": "#16202e"}, "flowchart": {"htmlLabels": false}}}%%
+flowchart LR
+  subgraph cluster["On-prem OpenShift klaszter"]
+    agents["Ágensek · pipeline-ok"]
+    devs["Fejlesztői workbench"]
+    gw["LiteLLM gateway"]
+    glm["GLM · vLLM · 8× H100"]
+    agents --> gw
+    devs --> gw
+    gw --> glm
+  end
+  gw -->|"Egress proxy · FQDN-allowlist"| tls["TLS 443"]
+  tls --> foundry["Foundry végpont<br/>PNA: engedélyezve / Selected networks"]
+  style foundry fill:#0f2f4a,stroke:#3b82c4,color:#e8eef5
+  style gw fill:#0f2f4a,stroke:#5ac8e0,color:#e8eef5
+  style tls fill:#16202e,stroke:#3b4a5e,color:#e8eef5

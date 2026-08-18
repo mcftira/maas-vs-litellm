@@ -1,0 +1,8 @@
+%%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#16202e", "primaryBorderColor": "#3b82c4", "primaryTextColor": "#e8eef5", "lineColor": "#8fa3b8", "secondaryColor": "#16202e", "tertiaryColor": "#16202e", "fontFamily": "JetBrains Mono, monospace", "fontSize": "13px", "clusterBkg": "transparent", "clusterBorder": "#3b4a5e", "edgeLabelBackground": "#16202e"}, "flowchart": {"htmlLabels": false}}}%%
+flowchart LR
+  laptop["Fejlesztői laptop<br/>IDE · coding ágens"] -->|"LAN / VPN"| ocp["On-prem OpenShift AI<br/>GLM · vLLM · 8× H100"]
+  laptop -->|"TLS 443 · publikus végpont"| foundry["Azure AI Foundry<br/>PaaS · Microsoft-hostolt"]
+  ocp -.-x|"nincs OCP → Azure adatútvonal"| foundry
+  style foundry fill:#0f2f4a,stroke:#3b82c4,color:#e8eef5
+  style ocp fill:#16202e,stroke:#3b82c4,color:#e8eef5
+  style laptop fill:#16202e,stroke:#3b4a5e,color:#e8eef5
