@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>EGY GATEWAY. MINDEN MODELL. — stilizált persuáziós változat</title>
+  <meta name="description" content="A LLM gateway döntési anyag stilizált, persuáziós technikákat bemutató változata — szándékosan túlzó hangnem, érintetlen tények. A teljes elemzés a főriportban.">
+  <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/propaganda.css">
+</head>
+<body>
+  <main class="poster">
+
+    <header class="poster__top">
+      <p class="kicker">Stilizált változat · klasszikus persuáziós technikák bemutatása</p>
+      <h1 class="poster__title">EGY GATEWAY.<br>MINDEN MODELL.<br><span class="accent">NULLA KÁOSZ.</span></h1>
+      <p class="poster__sub">A teljes, forrásokkal alátámasztott elemzés: <a href="index.html">a főriport</a>. Ugyanazok a tények — más a hangnem.</p>
+    </header>
+
+    <section class="block">
+      <p class="tech">technika: egyszerű szlogen + ismétlés</p>
+      <h2 class="block__title">Egy gateway. <span class="accent">Minden</span> modell.</h2>
+      <p class="block__body">A helyi GLM. A Foundry. Minden kulcs, minden büdzsé, minden audit — egy rétegben. Egy gateway. Minden modell. Egy gateway. Minden modell.</p>
+      <p class="block__fact">Tény: a LiteLLM az egyetlen OSS-opció, amely a self-hosted vLLM-et és az Azure AI Foundryt is első osztályban támogatja — 56 661 GitHub-csillag, MCP- és A2A-gateway beépítve. <a href="index.html#litellm">→ 04. szakasz</a></p>
+    </section>
+
+    <section class="block block--dark">
+      <p class="tech">technika: kontraszt — két út, nincs középút</p>
+      <h2 class="block__title">Két út áll előttünk.</h2>
+      <div class="tworoads">
+        <div class="road road--yes">
+          <p class="road__head">Kontrollált hozzáférés</p>
+          <p class="road__body">Virtuális kulcsok. Csapatbüdzsék. Guardrails bekapcsolva. Minden kérés naplózva.</p>
+        </div>
+        <div class="road road--no">
+          <p class="road__head">Shadow AI</p>
+          <p class="road__body">Szeletelt környezet, kifutó token-számlák, auditálatlan promptok, láthatatlan adatáramlás.</p>
+        </div>
+      </div>
+      <p class="block__fact">Tény: az AI-asset-felderítés (shadow AI) az egyetlen cella, amire ma nincs licencen belüli eszközünk — ezért külön döntés kell róla. <a href="index.html#biztonsag">→ 07. szakasz</a></p>
+    </section>
+
+    <section class="block">
+      <p class="tech">technika: tekintély + kemény számok</p>
+      <h2 class="block__title">A számok nem tárgyalnak.</h2>
+      <div class="bigstat"><span class="bigstat__num">703,8 GiB</span><span class="bigstat__lab">FP8 súlyok</span></div>
+      <div class="bigstat"><span class="bigstat__num">596 GiB</span><span class="bigstat__lab">8× H100 használható keret</span></div>
+      <div class="bigstat"><span class="bigstat__num accent">401 GiB</span><span class="bigstat__lab">NVFP4 — belefér</span></div>
+      <p class="block__fact">Mért értékek, Hugging Face / ModelScope, 2026-08-18. A memória-aritmetika nem vélemény. <a href="index.html#kiindulas">→ 02. szakasz</a></p>
+    </section>
+
+    <section class="block block--dark">
+      <p class="tech">technika: social proof + tekintélylánc</p>
+      <h2 class="block__title">Nem mi találtuk ki. <span class="accent">Az iparág már így csinálja.</span></h2>
+      <p class="block__body">A Linux Foundation alatt dolgozik az MCP-gateway jövőjén — a Red Hat és a Microsoft is kontributor. A Cisco–NVIDIA validált referencia-dizájnja ugyanazokat a rétegeket használja, amelyek már a licencünkben vannak. A NIST az ágens-identitáshoz pont a SPIFFE/SPIRE-t jelöli — ami nálunk GA.</p>
+      <p class="block__fact">Források: AAIF/LF (2026-06-04), Cisco dCloud Secure AI Factory, NIST NCCoE (2026-02). <a href="index.html#forrasok">→ 10. szakasz</a></p>
+    </section>
+
+    <section class="block">
+      <p class="tech">technika: sürgősség + kockázat-keretezés</p>
+      <h2 class="block__title">2026. március 24. 10:39 UTC.</h2>
+      <p class="block__body">Negyven percig élt a backdoor-olt LiteLLM-csomag a PyPI-n. ~47 000 letöltés. Aki nem pin-elt, nem ellenőrzött aláírást, nem követte a security feedet — az megtudta, miért kell. A kérdés nem az, hogy lesz-e újabb incidens. Hanem hogy akkor is tudni fogjuk-e, mi fut nálunk.</p>
+      <p class="block__fact">Tények és a mitigációs minimumlista (pin ≥1.83.14, cosign, GHSA-feed). <a href="index.html#litellm">→ 04. szakasz</a></p>
+    </section>
+
+    <section class="block block--accent">
+      <p class="tech">technika: egyszerű cselekvési parancs</p>
+      <h2 class="block__title">Holnap reggel.</h2>
+      <p class="block__commands">Verzió pin. Cosign ellenőrzés. Guardrails bekapcsolva. Büdzsé minden csapatnak. Egress allowlist. Ennyi.</p>
+      <p class="block__fact">A részletes 0–30 / 30–90 / 90+ napos ütemterv: <a href="index.html#ajanlas">→ 08. szakasz</a></p>
+    </section>
+
+    <footer class="poster__foot">
+      <p><strong>Módszertani megjegyzés.</strong> Ez az oldal a főriport stilizált változata: klasszikus persuáziós technikákat (szlogen, ismétlés, kontraszt, tekintély, social proof, sürgősség, cselekvési parancs) alkalmaz marketing-célú bemutatásra. A tartalom tényei változatlanok és forrásoltak; a hangnem szándékosan túlzó. Döntést a teljes elemzés alapján hozz: <a href="index.html">LLM gateway döntési anyag</a>.</p>
+    </footer>
+
+  </main>
+</body>
+</html>
