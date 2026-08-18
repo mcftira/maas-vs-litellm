@@ -723,7 +723,7 @@
             <tr>
               <th scope="row">AI-asset / shadow-AI felderítés (AI-BOM, MCP-katalógus)</th>
               <td><strong>Nincs licencen belüli megoldás.</strong> Ez a Cisco AI Defense (MCP Catalog, AI BOM, red teaming, agentic guardrails) — <strong>külön Cisco Security SKU, nem része az Isovalent-licencnek</strong>; részleges hálózati szintű mérséklés: Cilium FQDN-egress + OpenShift EgressFirewall<span class="lic">Licenc: nincs — <a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m02/cisco-redefines-security-for-the-agentic-era.html" target="_blank" rel="noopener">Cisco AI Defense</a> külön SKU (SaaS control plane; ár nem nyilvános)</span></td>
-              <td><button type="button" class="cell cell--no" data-note="A Cisco 2026-02-10-i AI Defense kibővítése (AI BOM, MCP Catalog, NeMo-integráció) a Secure AI Factory része — referencia-architektúra szinten illeszkedik az Isovalent-rétegekhez, termékszinten nem olvad bele. Az árazás nem nyilvános.">nincs</button></td>
+              <td><button type="button" class="cell cell--no" data-note="A Cisco 2026-02-10-i AI Defense kibővítése (AI BOM, MCP Catalog, NeMo-integráció) a Secure AI Factory része — referencia-architektúra szinten illeszkedik az Isovalent-rétegekhez, termékszinten nem olvad bele; a v2 dCloud demo már MCP tool-call auditot is mutat. Az árazás nem nyilvános.">nincs</button></td>
             </tr>
           </tbody>
         </table>
@@ -731,6 +731,13 @@
 
       <div class="prose">
         <p><strong>Azure-oldali fedezet (Foundry-adopció esetén):</strong> a <a href="https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview" target="_blank" rel="noopener">Prompt Shields</a> már 2024-08 óta GA (direkt + indirekt injekció-detektálás; külön mért Azure AI Content Safety erőforrás, 1000 szövegrekordonként számlázva); az <strong>Entra Agent ID 2026-04 óta GA</strong>, a <strong>Microsoft Agent 365 2026-05-01 óta GA</strong> (~15 USD/user/hó — ügynök-regiszter, sponsor, audit); a Defender AI Prompt Shield még Preview. Vagyis az Azure-láb sem igényel harmadik féltől AI-securityt — a hiányzó cella továbbra is a multi-platform AI-asset-felderítés.</p>
+      </div>
+
+      <h3 class="subhead">Cisco Secure AI Factory with NVIDIA — validált referencia-architektúra <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
+      <div class="prose">
+        <p>A Cisco és az NVIDIA közös, <strong>validált moduláris referencia-dizájnja</strong> (<a href="https://www.ciscodcloud.com/demo-guide/dcloud/datacenter/cisco-secure-ai-factory-with-nvidia-intro/" target="_blank" rel="noopener">dCloud intro</a> · <a href="https://www.ciscodcloud.com/demo-guide/dcloud/datacenter/cisco-secure-ai-factory-with-nvidia-v2/" target="_blank" rel="noopener">v2 teljes demo, 12 scenario</a>) gyakorlatilag a mi stackünket mintázza: <strong>Red Hat OpenShift</strong> a Kubernetes-réteg (NVIDIA GPU Operatorral, Cisco Intersight OpenShift-pluginnel a hardware-egészséghez), <strong>Isovalent Enterprise</strong> a zero-trust hálózat és kernel-szintű runtime-láthatóság (<strong>már licencünkben van</strong>), NVIDIA NIM az inference, <strong>Cisco AI Defense</strong> a szemantikai réteg, <strong>Splunk</strong> a SecOps + observability, UCS/Nexus Dashboard/VAST az infrastruktúra (Nexus Dashboard Live Protect: switchek CVE-shieldje reboot nélkül). Felépítése: AI Workload POD-ok (számítás) + AI Services POD (biztonság, observability, adat) — egy-több viszonyban.</p>
+        <p>Az AI Defense keretrendszere három lépcsős: <strong>Discovery</strong> (AI-asset-felderítés — a mátrix hiányzó cellája), <strong>Detection</strong> (algoritmikus red teaming 200+ kategóriában, OWASP LLM Top 10 / MITRE ATLAS / NIST leképezéssel), <strong>Protection</strong> (inline gateway, kétirányú guardrails, Talos-threat-intel frissítések). A v2-es demo már <strong>MCP tool-call auditot</strong> is mutat (Scenario 2.3 — AI Defense security boundary az ügynökök tool-hívásaira): ez a harmadik, kereskedelmi út az MCP tool-call cellára, az agentgateway (OSS) és az RHCL MCP gateway (licencen belüli, TP) mellé. A runtime-guardrails része viszont átfedné a NeMo/FMS + LiteLLM guardrailsünket — duplafizetést kerülendő, a PoC-scope szándékosan csak a Discovery/AI-BOM/MCP-audit.</p>
+        <p><strong>Kézzelfogható következő lépés:</strong> a dCloud <strong>instant demo ingyenesen</strong> lefuttatható (intro ~40 perc, v2 12 scenario négy use case-ben) — a referencia-környezet megnézése nem beszerzési commitmunka, hanem architektúra-validáció.</p>
       </div>
 
       <h3 class="subhead">Mi is a Lilith Zero pontosan?</h3>
@@ -773,6 +780,7 @@
             <li>ZTWIM (SPIFFE/SPIRE) pilot: rövid életű ágens-identitások a statikus kulcsok helyett; Tetragon FIM-policy a modellfájlokra, Cilium FQDN/L7 policy az inference namespace-ekre.</li>
             <li>RH MaaS self-service továbbra is on-cluster fogyasztóknak; szerepek dokumentálása.</li>
             <li>Compliance-döntés: ha publikus endpoint nem engedhető meg, C minta — Private Link + ExpressRoute + Private DNS Resolver projektindítás.</li>
+            <li>Cisco Secure AI Factory értékelés: ingyenes dCloud instant demo lefuttatása (intro + v2 scenariok); ha az AI-asset-felderítés kell, AI Defense PoC — scope szigorúan Discovery/AI-BOM/MCP-audit (a runtime guardrails átfedné a meglévő NeMo/FMS + LiteLLM réteget).</li>
           </ul>
         </li>
         <li class="roadmap__step">
@@ -853,6 +861,8 @@
             <li><a href="https://www.redhat.com/en/blog/red-hat-acquire-chatterbox-labs-frequently-asked-questions" target="_blank" rel="noopener">Red Hat blog — Chatterbox Labs felvásárlás FAQ (Garak/AIMI)</a> <span class="sources__date">2025-12-16</span></li>
             <li><a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m02/cisco-redefines-security-for-the-agentic-era.html" target="_blank" rel="noopener">Cisco Newsroom — AI Defense kibővítés (AI BOM, MCP Catalog; külön SKU)</a> <span class="sources__date">2026-02-10</span></li>
             <li><a href="https://blogs.cisco.com/datacenter/accelerating-agent-intelligence-cisco-secure-ai-factory-expands-with-nvidia-and-vast" target="_blank" rel="noopener">Cisco Blogs — Secure AI Factory (Isovalent + AI Defense referencia-architektúra)</a> <span class="sources__date">2026-02-25</span></li>
+            <li><a href="https://www.ciscodcloud.com/demo-guide/dcloud/datacenter/cisco-secure-ai-factory-with-nvidia-intro/" target="_blank" rel="noopener">Cisco dCloud — Secure AI Factory with NVIDIA, intro demo-guide (POD-felépítés, AI Defense 3 lépcső)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://www.ciscodcloud.com/demo-guide/dcloud/datacenter/cisco-secure-ai-factory-with-nvidia-v2/" target="_blank" rel="noopener">Cisco dCloud — Secure AI Factory v2 (12 scenario; MCP tool-call audit, Intersight OpenShift-plugin, Live Protect)</a> <span class="sources__date">2026-08-18</span></li>
           </ul>
         </div>
         <div class="sources__group">
@@ -979,10 +989,12 @@
       <dl class="glossary">
         <div class="glossary__item"><dt>A2A (Agent2Agent)</dt><dd>Ügynök–ügynök kommunikációs protokoll; a LiteLLM A2A gateway-je proxyzza — Azure AI Foundry ágenseket is.</dd></div>
         <div class="glossary__item"><dt>AgentOps</dt><dd>Ügynökök életciklus-üzemeltetése: tracing, kriptográfiai identitás, kiértékelés — az OpenShift AI 3.4 csomagpontja.</dd></div>
+        <div class="glossary__item"><dt><a href="https://www.ciscodcloud.com/demo-guide/dcloud/datacenter/cisco-secure-ai-factory-with-nvidia-intro/" target="_blank" rel="noopener">AI Factory</a></dt><dd>Validált, moduláris AI-infrastruktúra-dizájn (Cisco + NVIDIA): compute, hálózat, tár, Kubernetes, biztonság és observability egy POD-struktúrában.</dd></div>
         <div class="glossary__item"><dt>AI-BOM</dt><dd>Az AI-szoftver-összetevők (modellek, MCP-szerverek, ügynökök) leltára; a shadow-AI-felderítés alapja. Licencen belül nincs rá eszköz.</dd></div>
         <div class="glossary__item"><dt>APIM (Azure API Management)</dt><dd>Az Azure API-gatewaye; GenAI policy-kkal (token-limit, llm-content-safety, semantic cache) LLM-gateway-ként is üzemel.</dd></div>
         <div class="glossary__item"><dt>Authorino</dt><dd>A Kuadrant hitelesítési komponense: API-kulcs-, OIDC- és jogosultság-kezelés a gatewayen.</dd></div>
         <div class="glossary__item"><dt>Chargeback / showback</dt><dd>Showback: költség-kimutatás számlázás nélkül (a MaaS ezt tudja, TP); chargeback: tényleges továbbszámlázás a fogyasztónak.</dd></div>
+        <div class="glossary__item"><dt>Cisco AI Defense</dt><dd>A Cisco AI-biztonsági platformja (Discovery / red teaming / runtime guardrails, MCP-audit a v2-ben) — külön SKU, nem része az Isovalent-licencnek.</dd></div>
         <div class="glossary__item"><dt><a href="https://cilium.io/" target="_blank" rel="noopener">Cilium</a></dt><dd>eBPF-alapú Kubernetes-hálózat (CNI): identitás-alapú L3–L7 policy, FQDN-egress, Hubble-megfigyelés. Isovalent Enterprise Platform Networking-pillére.</dd></div>
         <div class="glossary__item"><dt><a href="https://docs.cilium.io/en/stable/network/clustermesh/intro/" target="_blank" rel="noopener">Cluster Mesh</a></dt><dd>Cilium-funkció: több klaszter pod-hálózatának összekapcsolása, globális service-ekkel. PaaS-API fogyasztásához nem kell.</dd></div>
         <div class="glossary__item"><dt>Cosign</dt><dd>Konténerimage-aláírás és -ellenőrzés; a LiteLLM image-ek v1.83.0 óta cosign-aláírtak — deploy előtt kötelező ellenőrizni.</dd></div>
