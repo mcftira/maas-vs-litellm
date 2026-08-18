@@ -26,6 +26,7 @@
       <li><a href="#ajanlas"><span class="rail__num">08</span><span class="rail__label">Ajánlás</span></a></li>
       <li><a href="#alternativak"><span class="rail__num">09</span><span class="rail__label">Alternatívák</span></a></li>
       <li><a href="#forrasok"><span class="rail__num">10</span><span class="rail__label">Források</span></a></li>
+      <li><a href="#fogalomtar"><span class="rail__num">11</span><span class="rail__label">Fogalomtár</span></a></li>
     </ol>
     <p class="rail__foot">belső anyag</p>
   </nav>
@@ -46,6 +47,7 @@
         <li><a href="#ajanlas">08 · Ajánlás</a></li>
         <li><a href="#alternativak">09 · Alternatívák</a></li>
         <li><a href="#forrasok">10 · Források</a></li>
+        <li><a href="#fogalomtar">11 · Fogalomtár</a></li>
       </ol>
     </details>
   </header>
@@ -889,7 +891,7 @@
             <li><a href="https://tetragon.io/" target="_blank" rel="noopener">Tetragon — eBPF runtime enforcement és observability</a> <span class="sources__date">2026-08-17</span></li>
             <li><a href="https://github.com/BadC-mpany/lilith-zero" target="_blank" rel="noopener">GitHub — BadC-mpany/lilith-zero (MCP security middleware)</a> <span class="sources__date">2026</span></li>
             <li><a href="https://www.marketscreener.com/news/check-point-software-technologies-ltd-completed-the-acquisition-of-lakera-ai-ag-ce7d5dd2dc80f22d" target="_blank" rel="noopener">MarketScreener — Check Point × Lakera (~300 M USD)</a> <span class="sources__date">2025-10-22</span></li>
-            <li><a href="https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/" target="_blank" rel="noopener">SentinelOne press — Prompt Security felvásárlás (~250 M USD)</a> <span class="sources__date">2025-08-05</span></li>
+            <li><a href="https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/" target="_blank" rel="noopener">SentinelOne press — Prompt Security felvásárlás (~159 M USD a 10-Q szerint)</a> <span class="sources__date">2025-08-05</span></li>
             <li><a href="https://appsecsanta.com/ai-security-tools" target="_blank" rel="noopener">AppSec Santa — AI security eszközök (Protect AI → Palo Alto Prisma AIRS)</a> <span class="sources__date">2026-07-21</span></li>
           </ul>
         </div>
@@ -919,11 +921,76 @@
         </div>
       </div>
     </section>
+
+    <!-- ============ 11 · FOGALOMTÁR ============ -->
+    <section class="section" id="fogalomtar" aria-labelledby="h-fogalomtar">
+      <h2 class="section__title" id="h-fogalomtar"><span class="h-num">11</span> Fogalomtár</h2>
+      <div class="prose">
+        <p>A jelentésben használt rövidítések és szakkifejezések — egy-egy mondatban, magyarul; ahol kanonikus dokumentáció van, a kifejezés linkelve.</p>
+      </div>
+      <dl class="glossary">
+        <div class="glossary__item"><dt>A2A (Agent2Agent)</dt><dd>Ügynök–ügynök kommunikációs protokoll; a LiteLLM A2A gateway-je proxyzza — Azure AI Foundry ágenseket is.</dd></div>
+        <div class="glossary__item"><dt>AgentOps</dt><dd>Ügynökök életciklus-üzemeltetése: tracing, kriptográfiai identitás, kiértékelés — az OpenShift AI 3.4 csomagpontja.</dd></div>
+        <div class="glossary__item"><dt>AI-BOM</dt><dd>Az AI-szoftver-összetevők (modellek, MCP-szerverek, ügynökök) leltára; a shadow-AI-felderítés alapja. Licencen belül nincs rá eszköz.</dd></div>
+        <div class="glossary__item"><dt>APIM (Azure API Management)</dt><dd>Az Azure API-gatewaye; GenAI policy-kkal (token-limit, llm-content-safety, semantic cache) LLM-gateway-ként is üzemel.</dd></div>
+        <div class="glossary__item"><dt>Authorino</dt><dd>A Kuadrant hitelesítési komponense: API-kulcs-, OIDC- és jogosultság-kezelés a gatewayen.</dd></div>
+        <div class="glossary__item"><dt>Chargeback / showback</dt><dd>Showback: költség-kimutatás számlázás nélkül (a MaaS ezt tudja, TP); chargeback: tényleges továbbszámlázás a fogyasztónak.</dd></div>
+        <div class="glossary__item"><dt><a href="https://cilium.io/" target="_blank" rel="noopener">Cilium</a></dt><dd>eBPF-alapú Kubernetes-hálózat (CNI): identitás-alapú L3–L7 policy, FQDN-egress, Hubble-megfigyelés. Isovalent Enterprise Platform Networking-pillére.</dd></div>
+        <div class="glossary__item"><dt><a href="https://docs.cilium.io/en/stable/network/clustermesh/intro/" target="_blank" rel="noopener">Cluster Mesh</a></dt><dd>Cilium-funkció: több klaszter pod-hálózatának összekapcsolása, globális service-ekkel. PaaS-API fogyasztásához nem kell.</dd></div>
+        <div class="glossary__item"><dt>Cosign</dt><dd>Konténerimage-aláírás és -ellenőrzés; a LiteLLM image-ek v1.83.0 óta cosign-aláírtak — deploy előtt kötelező ellenőrizni.</dd></div>
+        <div class="glossary__item"><dt>CRD (Custom Resource Definition)</dt><dd>Kubernetes-bővítmény, amelyben a MaaS-objektumok (MaaSSubscription, MaaSAuthPolicy…) élnek — GitOps-barát konfiguráció.</dd></div>
+        <div class="glossary__item"><dt>CVE / CVSS / CISA KEV</dt><dd>Sebezhetőség-azonosító; súlyossági pontszám; a CISA aktívan kihasznált sebezhetőségeinek listája (a CVE-2026-42271 rajta van).</dd></div>
+        <div class="glossary__item"><dt>eBPF</dt><dd>A Linux kernel programozható rétege; a Cilium és a Tetragon alaptechnológiája — overhead nélküli megfigyelés és kényszerítés.</dd></div>
+        <div class="glossary__item"><dt>Egress</dt><dd>Kifelé irányuló hálózati forgalom; a klaszter→Foundry kapcsolat egyszerű egress, FQDN-allowlisttel szabályozható.</dd></div>
+        <div class="glossary__item"><dt>Entra Agent ID</dt><dd>Microsoft ágens-identitás (GA 2026-04); az Agent 365 registry-control plane tartozéka.</dd></div>
+        <div class="glossary__item"><dt>ExpressRoute</dt><dd>Dedikált privát vonal a vállalati hálózat és az Azure közé; a Private Link + ExpressRoute a C minta alapja.</dd></div>
+        <div class="glossary__item"><dt>FIM (File Integrity Monitoring)</dt><dd>Fájlintegritás-figyelés — a Tetragonnal a modell- és tanítófájlokon (adatmérgezés-detektálás).</dd></div>
+        <div class="glossary__item"><dt>FMS Guardrails Orchestrator</dt><dd>TrustyAI-operált detektor-zenekar: regex-PII, HAP (granite-guardian), DeBERTa prompt-injection detektor. GA a 3.4-ben.</dd></div>
+        <div class="glossary__item"><dt>FP8 / BF16 / 4-bit</dt><dd>Modellsúly-tárolási pontosságok; a memóriaigényt határozzák meg — a GLM-5.2 FP8 ~744 GB, ami nem fér el 8× H100-on.</dd></div>
+        <div class="glossary__item"><dt>GA (General Availability)</dt><dd>Általános rendelkezésre állás — production SLA-val, támogatással. Ellentéte: Technology Preview.</dd></div>
+        <div class="glossary__item"><dt>Garak</dt><dd>LLM red-teaming keretrendszer (120+ probe); OpenShift AI-komponens, TP-státuszban.</dd></div>
+        <div class="glossary__item"><dt>Gen AI studio</dt><dd>Az OpenShift AI felülete: modell-felfedezés, AI asset endpoints, MaaS API-kulcsok self-service módon.</dd></div>
+        <div class="glossary__item"><dt>GLM</dt><dd>A Zhipu AI (z.ai) modellcsaládja — MoE, MIT-licenc, agentic coding fókusz; 4.5/4.6 (355B), 5.x (744B+).</dd></div>
+        <div class="glossary__item"><dt>Guardrails</dt><dd>Az LLM bemenete és kimenete elé/utána ágyazott szabályréteg: PII-maszkolás, injekció-szűrés, tartalom-moderálás.</dd></div>
+        <div class="glossary__item"><dt>H100 / H200</dt><dd>NVIDIA GPU-k: H100 80 GB, H200 141 GB memóriával — ezért kell H200 (vagy 2 node) az FP8 GLM-5.2-höz.</dd></div>
+        <div class="glossary__item"><dt>Hubble</dt><dd>A Cilium hálózati megfigyelő rétege: flow-napló, service-map, DNS- és L7-láthatóság.</dd></div>
+        <div class="glossary__item"><dt>Jailbreak</dt><dd>Olyan prompttechnika, amely a modell biztonsági korlátait kerüli meg; detektálása a NeMo/Content Safety dolga.</dd></div>
+        <div class="glossary__item"><dt>Kata (OpenShift sandboxed containers)</dt><dd>VM-szintű kernel-izoláció podokhoz; a meglévő OpenShift-előfizetés része, külön díj nélkül.</dd></div>
+        <div class="glossary__item"><dt>KServe</dt><dd>A Kubernetes modell-kiszolgálási rétege az OpenShift AI-ban (LLMInferenceService CRD).</dd></div>
+        <div class="glossary__item"><dt>Kuadrant</dt><dd>Gateway API policy-motor (Authorino + Limitador); a Red Hat Connectivity Link és a MaaS gateway-alapja.</dd></div>
+        <div class="glossary__item"><dt>Limitador</dt><dd>A Kuadrant rate-limit komponense; a <a href="https://developers.redhat.com/articles/2026/02/18/manage-ai-resource-use-tokenratelimitpolicy" target="_blank" rel="noopener">TokenRateLimitPolicy</a> tényleges tokeneket számlál a válaszokból.</dd></div>
+        <div class="glossary__item"><dt>llm-d</dt><dd>Disztribuált vLLM-inferencia (prefill/decode szétválasztás, KV-cache-tudatos routing); CNCF sandbox — a MaaS GA runtime-ja.</dd></div>
+        <div class="glossary__item"><dt>MaaS (Models-as-a-Service)</dt><dd>Az OpenShift AI self-service modell-hozzáférése: subscripciók, API-kulcsok, token-kvóták. GA 3.4-től.</dd></div>
+        <div class="glossary__item"><dt><a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener">MCP (Model Context Protocol)</a></dt><dd>Az Anthropic által iniciált, ma LF/AAIF-governance alatt álló protokoll: eszközök és context szabványos csatlakoztatása az LLM-ekhez.</dd></div>
+        <div class="glossary__item"><dt>MoE (Mixture of Experts)</dt><dd>Ritka aktivációjú modellarchitektúra: sok paraméterből kevés aktív tokenenként (GLM-5.2: ~744B összes, ~40B aktív).</dd></div>
+        <div class="glossary__item"><dt><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/enabling_ai_safety_with_guardrails/enabling-ai-safety-with-nemo-guardrails_nemo-guardrails" target="_blank" rel="noopener">NeMo Guardrails</a></dt><dd>Az NVIDIA guardrails-kerete: rail-ek, Presidio PII, jailbreak-konfig; az OpenShift AI 3.4-ben GA, TrustyAI-operátorral.</dd></div>
+        <div class="glossary__item"><dt>NSP (Network Security Perimeter)</dt><dd>Azure PaaS-erőforrások egységes hálózati peremvédelme; Foundryre GA az Ignite 2025 óta.</dd></div>
+        <div class="glossary__item"><dt>OIDC / SAML / SCIM</dt><dd>SSO- és provisioning-szabványok: OIDC/SAML a beléptetéshez, SCIM a felhasználók automatikus létesítéséhez (LiteLLM Enterprise).</dd></div>
+        <div class="glossary__item"><dt>PII</dt><dd>Személyes azonosításra alkalmas adat — promptban és válaszban is kezelendő (Presidio, regex-detektorok).</dd></div>
+        <div class="glossary__item"><dt>PNA (Public Network Access)</dt><dd>Azure-erőforrás publikus elérésének kapcsolója: Enabled / Selected networks / Disabled.</dd></div>
+        <div class="glossary__item"><dt><a href="https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link" target="_blank" rel="noopener">Private Link / private endpoint</a></dt><dd>Azure PaaS privát IP-s elérése a VNeten át; on-prem felől ExpressRoute/VPN + Private DNS Resolver kell hozzá.</dd></div>
+        <div class="glossary__item"><dt>Prompt injection</dt><dd>Rosszindulatú utasítás a promptban — direkt (felhasználói) vagy indirekt (visszatöltött dokumentumban).</dd></div>
+        <div class="glossary__item"><dt><a href="https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview" target="_blank" rel="noopener">Prompt Shields</a></dt><dd>Az Azure AI Content Safety injekció-detektora (direkt + indirekt); GA 2024-08 óta, külön mért szolgáltatás.</dd></div>
+        <div class="glossary__item"><dt>PTU (Provisioned Throughput Unit)</dt><dd>Azure dedikált modell-kapacitás óradíjban vagy rezervációval — a token-PAYG alternatívája kiszámítható terhelésre.</dd></div>
+        <div class="glossary__item"><dt>Red teaming</dt><dd>Célzott, támadói tesztelés modelleken (injekció, jailbreak, adatszivárgás) — Garak, Chatterbox/AIMI, Cisco AI Defense.</dd></div>
+        <div class="glossary__item"><dt>RHCL (Red Hat Connectivity Link)</dt><dd>Kuadrant-alapú API-konnektivitás, a 3scale utódja; MaaS-use-case-re az OpenShift AI-hoz csomagolva, egyébként külön előfizetés.</dd></div>
+        <div class="glossary__item"><dt>SKU</dt><dd>Licenc-cikkszám / számlázási egység — „mit veszel pontosan". Pl. Red Hat AI Accelerator SKU: fizikai GPU-nként egy.</dd></div>
+        <div class="glossary__item"><dt>SPIFFE / SPIRE (SVID)</dt><dd>Workload-identitás szabvány és implementáció: rövid életű, kriptográfiai identitások statikus kulcsok helyett — a ZTWIM alapja.</dd></div>
+        <div class="glossary__item"><dt>Supply-chain támadás</dt><dd>A build- vagy disztribúciós lánc kompromittálása — pl. a 2026-03-i LiteLLM PyPI-incidens (TeamPCP).</dd></div>
+        <div class="glossary__item"><dt>Tech Preview (TP)</dt><dd>Red Hat státusz: működik, de nincs production SLA, éles használatra nem ajánlott — jellemzően a következő minorokban GA-zik.</dd></div>
+        <div class="glossary__item"><dt><a href="https://tetragon.io/" target="_blank" rel="noopener">Tetragon</a></dt><dd>eBPF-alapú runtime-biztonság a Cilium-projektből: folyamat-/fájl-/syscall-megfigyelés és kernelbeli, szinkron kényszerítés. Isovalent Runtime Security-pillér.</dd></div>
+        <div class="glossary__item"><dt>TPM / RPM</dt><dd>Token per perc, illetve kérés per perc korlátok — kulcs-, csapat- és modellszinten (LiteLLM, MaaS, APIM).</dd></div>
+        <div class="glossary__item"><dt>TrustyAI</dt><dd>Az OpenShift AI responsible-AI komponense: drift-detektálás, explainability, és a guardrails-operátorok (NeMo, FMS) gazdája.</dd></div>
+        <div class="glossary__item"><dt>Virtuális kulcs</dt><dd>LiteLLM API-kulcs modell-allowlisttel, büdzsével és rate limittel — a fogyasztónkénti hozzáférés alapegysége.</dd></div>
+        <div class="glossary__item"><dt><a href="https://vllm.ai/" target="_blank" rel="noopener">vLLM</a></dt><dd>Nyílt LLM-inferencia motor (PagedAttention); a Red Hat AI Inference és a helyi GLM-kiszolgálás alapja.</dd></div>
+        <div class="glossary__item"><dt><a href="https://www.redhat.com/en/blog/zero-trust-workload-identity-manager-generally-available-red-hat-openshift" target="_blank" rel="noopener">ZTWIM</a></dt><dd>Zero Trust Workload Identity Manager: SPIFFE/SPIRE az OpenShiftre — GA 2026-01, a Platform Plus része.</dd></div>
+      </dl>
+    </section>
   </main>
 
   <!-- ============ FOOTER · Ft4 dense colophon ============ -->
   <footer class="colophon">
-    <p>Készült: 2026. augusztus · belső architektúra-döntési anyag · kutatás dátuma: 2026-08-17 · nem minősített. Az anyag statikus oldal, külső szkript vagy nyomkövető nélkül; forrás: <a href="https://github.com/mcftira/maas-vs-litellm" target="_blank" rel="noopener">github.com/mcftira/maas-vs-litellm</a>.</p>
+    <p>Készült: 2026. augusztus · belső architektúra-döntési anyag · kutatás dátuma: 2026-08-17/18 · nem minősített. Az anyag statikus oldal, külső szkript vagy nyomkövető nélkül; forrás: <a href="https://github.com/mcftira/maas-vs-litellm" target="_blank" rel="noopener">github.com/mcftira/maas-vs-litellm</a>.</p>
     <p>A logók az azokat birtokló cégek védjegyei: Red Hat és OpenShift — Red Hat, Inc.; LiteLLM — BerriAI, Inc.; Azure — Microsoft; Cilium és Tetragon — Isovalent, Inc. / The Linux Foundation (CNCF); Kubernetes — The Linux Foundation; NVIDIA — NVIDIA Corporation. Kizárólag azonosítási és összehasonlítási céllal, a hivatalos forrásokból (CNCF artwork repo, Wikimedia Commons, gyártói repók); részletek: <code>assets/logos/ATTRIBUTION.md</code>. A védjegyek használata nem jelent támogatást vagy jóváhagyást.</p>
     <p>Tipográfia: Space Grotesk (display), Geist (szöveg), JetBrains Mono (jelölések) — helyben kiszolgált woff2-példányok. Minden szám a 10. szakaszban hivatkozott, dátumozott forrásokból származik; a nem hivatalos adatok a helyükön külön jelölve.</p>
   </footer>
