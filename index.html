@@ -132,6 +132,30 @@
           <li><strong>Döntési kimenet:</strong> mikor éri meg a H200-node (FP8) vagy a 2×8 H100 — a benchmark adja meg, nem a spekuláció.</li>
         </ul>
       </div>
+
+      <h3 class="subhead">W8A8 valóságellenőrzés <span class="subhead__tag">frissítés: 2026-08-18</span></h3>
+      <div class="prose">
+        <p>A cél a z.ai GLM-5.2 <strong>W8A8</strong> lenne — három tényt érdemes előbb tisztázni, mert megváltoztatják a tervet:</p>
+        <ul class="tick-list">
+          <li><strong>Hivatalos W8A8-artifaktum nincs Hugging Face-en.</strong> A zai-org kizárólag <code>GLM-5.2</code> (BF16, 753B) és <code>GLM-5.2-FP8</code> (703,8 GiB) repókat publikál. A W8A8-INT8 csak <strong>ModelScope-on, harmadik féltől</strong> érhető el (T-HEAD, Eco-Tech, vllm-ascend) — jellemzően Huawei Ascend / nem-NVIDIA célhardverre, TP16-os referenciával.</li>
+          <li><strong>A W8A8 sem fér el 8× H100-on.</strong> 8 bit = 1 bájt/paraméter ≈ 704 GiB — ugyanaz a fal, mint az FP8-nál (a rendelkezésre álló ~596 GiB ellenében). Célhardvere: 16 GPU (TP16) vagy Atlas A3 / 2×8 H100 / 8× H200.</li>
+          <li><strong>NVIDIA-hardveren a W8A8-nak nincs előnye az FP8-hoz képest:</strong> ugyanannyi memória, és a Hopper FP8 tensor core-jai kétszeres INT8-teljesítményt adnak — az INT8 itt legfeljebb memória-kompatibilitási döntés lenne, teljesítményben sosem.</li>
+        </ul>
+        <p>Ami viszont <strong>van</strong> a <a href="https://huggingface.co/RedHatAI" target="_blank" rel="noopener">RedHatAI katalógusban</a>: GLM-5.2-NVFP4 (~401 GiB, TP8, H100 — a jelenlegi konfigunk), GLM-5.2-FP8, és 2026-08-18-án frissen a GLM-5.2-MXFP4xMXFP8; GLM-4.6-ból pedig létezik Red Hat-féle <code>quantized.w8a8</code> (llm-compressor GPTQ) — vagyis egy 5.2-es W8A8-validálás a TAM-en keresztül reális kérés. Fontos tisztázás: a nem Red Hat-validált modellekre a Red Hat <strong>nem vállal supportot, indemnifikációt vagy garanciát</strong> (a platform támogatott marad, a modell nem).</p>
+      </div>
+
+      <h3 class="subhead">Import- és validálási folyamat nem Red Hat-validált modellhez (7 lépés)</h3>
+      <div class="prose">
+        <ol class="tick-list tick-list--plain">
+          <li><strong>Igény megerősítése.</strong> W8A8 8× H100-on lehetetlen (704 &gt; 596 GiB); ha a cél minőség az NVFP4-hez képest, először az MXFP4xMXFP8-at vagy FP8-at érdemes mérni 2 node-on.</li>
+          <li><strong>Forrásbeszerzés staging-enklávéban.</strong> ModelScope-ról a T-HEAD-checkpoint (282 shard, SHA-256 rögzítve darabonként) — vagy tisztaebb út: <strong>saját W8A8-kvantálás</strong> a zai-org BF16-ból llm-compressor GPTQ-val, a Red Hat GLM-4.6-os receptje mentén; így a harmadik-fél-kvantáló bizalmi kérdése teljesen kiesik.</li>
+          <li><strong>Biztonsági szűrés.</strong> ModelScan minden fájlra (pickle-alapú támadásokra), kézi review: <code>chat_template.jinja</code>, konfigok, minden .py; licenc-ellenőrzés (MIT + a repackager feltételei); belső model card a provenánciáról.</li>
+          <li><strong>Betöltés a lezárt környezetbe.</strong> Tükör belső S3-ba vagy cosign-aláírt OCI modelcar-ként (Red Hat Trusted Artifact Signer); regisztráció a model registry-be teljes metadatával; opcionálisan belső model-catalog forrás (yaml a <code>model-catalog-sources</code> ConfigMapbe).</li>
+          <li><strong>Funkcionális validáció 2×8 H100-on.</strong> KServe InferenceService (S3/oci:// storageUri), vLLM TP16 + expert parallelism; lm-evaluation-harness pontosság a BF16/FP8-baseline ellen (a T-HEAD ≥99%-os recovery-t állít), GuideLLM teljesítmény-baseline.</li>
+          <li><strong>Élesítési edzés.</strong> Token-auth, route-policy, UWM-metrikák, Recreate stratégia, NVFP4-re visszafagyasztott rollback.</li>
+          <li><strong>Párhuzamos sáv.</strong> Red Hat case/TAM: (a) GLM-5.2 W8A8 validálásának kérése (a 4.6-os precedens miatt reális), (b) a nem katalógusos, ügyfél-deployolt modellek support-státuszának írásbeli megerősítése.</li>
+        </ol>
+      </div>
     </section>
 
     <!-- ============ 3 · RED HAT MAAS ============ -->
@@ -755,7 +779,7 @@
           <p class="roadmap__when">90+ nap</p>
           <h3>Skálázás és újraértékelés</h3>
           <ul class="tick-list tick-list--plain">
-            <li>GLM-5.2 NVFP4 skálázási benchmark lefuttatása (02. szakasz terv szerint: TTFT/ITL, konkurencia-skála, KV-cache-határok, llm-d prefill/decode); a H200-node (FP8) vagy 2×8 H100 döntés az eredményekre.</li>
+            <li>GLM-5.2 NVFP4 skálázási benchmark lefuttatása (02. szakasz terv szerint: TTFT/ITL, konkurencia-skála, KV-cache-határok, llm-d prefill/decode); a H200-node (FP8) vagy 2×8 H100 döntés az eredményekre. W8A8 csak önkvantálással vagy Red Hat-validációval (a 02. szakasz 7 lépése szerint).</li>
             <li>Showback/chargeback-folyamat a LiteLLM spend-exportokra.</li>
             <li>DR/multi-cluster stratégia (ha több klaszter: Cilium Cluster Mesh értékelése, globális service-ekhez).</li>
             <li>LiteLLM Rust data plane újraértékelése, amikor production-érett (cél: 2026. december).</li>
@@ -903,6 +927,20 @@
             <li><a href="https://www.marketscreener.com/news/check-point-software-technologies-ltd-completed-the-acquisition-of-lakera-ai-ag-ce7d5dd2dc80f22d" target="_blank" rel="noopener">MarketScreener — Check Point × Lakera (~300 M USD)</a> <span class="sources__date">2025-10-22</span></li>
             <li><a href="https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/" target="_blank" rel="noopener">SentinelOne press — Prompt Security felvásárlás (~159 M USD a 10-Q szerint)</a> <span class="sources__date">2025-08-05</span></li>
             <li><a href="https://appsecsanta.com/ai-security-tools" target="_blank" rel="noopener">AppSec Santa — AI security eszközök (Protect AI → Palo Alto Prisma AIRS)</a> <span class="sources__date">2026-07-21</span></li>
+          </ul>
+        </div>
+        <div class="sources__group">
+          <h3>Modell-import és validáció (W8A8) <span class="sources__date">frissítés 2026-08-18</span></h3>
+          <ul class="sources__list">
+            <li><a href="https://huggingface.co/zai-org" target="_blank" rel="noopener">Hugging Face — zai-org (GLM-5.2: csak BF16 + FP8; W8A8 nincs)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://huggingface.co/RedHatAI" target="_blank" rel="noopener">Hugging Face — RedHatAI katalógus (GLM-5.2-NVFP4, MXFP4xMXFP8; GLM-4.6 quantized.w8a8)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://modelscope.cn/models/T-HEAD/GLM-5.2-W8A8-INT8" target="_blank" rel="noopener">ModelScope — T-HEAD/GLM-5.2-W8A8-INT8 (704,4 GiB, TP16; harmadik fél)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://docs.vllm.ai/en/latest/features/quantization/int8/" target="_blank" rel="noopener">vLLM docs — INT8 W8A8 támogatás (Hopperen FP8 &gt; INT8)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_ai/3/html/validated_models/about-validated-models_validated-models" target="_blank" rel="noopener">Red Hat docs — mit jelent a „validated model" (GuideLLM, lm-eval, OCI modelcar)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://www.redhat.com/en/products/ai/validated-models" target="_blank" rel="noopener">Red Hat — Validated Models FAQ (harmadik-fél modellre nincs support; havi kadencia)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/deploying_models/deploying_models" target="_blank" rel="noopener">OpenShift AI 3.4 docs — modellek telepítése (OCI/S3/URI/PVC model storage)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/manage_and_govern_model_catalog_sources/configuring-model-catalog-sources-in-openshift_manage-govern-model-catalog-sources" target="_blank" rel="noopener">OpenShift AI 3.4 docs — egyéni model-catalog forrás (yaml)</a> <span class="sources__date">2026-08-18</span></li>
+            <li><a href="https://github.com/protectai/modelscan" target="_blank" rel="noopener">GitHub — protectai/modelscan (szerializációs támadások; korlátokkal)</a> <span class="sources__date">2026-08-18</span></li>
           </ul>
         </div>
         <div class="sources__group">
