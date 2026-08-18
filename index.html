@@ -6,7 +6,7 @@
   <title>LLM gateway döntési anyag — Red Hat MaaS × LiteLLM × Azure AI Foundry · 2026. augusztus</title>
   <meta name="description" content="Belső architektúra-döntési anyag nagy pénzintézet számára: Red Hat OpenShift AI MaaS, LiteLLM és Azure AI Foundry / APIM GenAI gateway összevetése — hálózat, biztonság, költség, ajánlás. Kutatás dátuma: 2026-08-17.">
   <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -67,7 +67,7 @@
         <span class="logo-cell"><img src="assets/logos/cilium.svg" width="34" height="34" alt="Cilium logó"></span>
         <span class="logo-cell"><img src="assets/logos/tetragon.svg" width="112" height="34" alt="Tetragon logó"></span>
         <span class="logo-cell"><img src="assets/logos/kubernetes.svg" width="34" height="34" alt="Kubernetes logó"></span>
-        <span class="logo-cell"><img src="assets/logos/nvidia.svg" width="96" height="18" alt="NVIDIA logó"></span>
+        <span class="logo-cell logo-cell--light"><img src="assets/logos/nvidia.svg" width="96" height="18" alt="NVIDIA logó"></span>
       </div>
     </header>
 
@@ -167,8 +167,8 @@
       <h3 class="subhead">Stack és előfeltételek</h3>
       <div class="prose">
         <p>KServe + vLLM (Red Hat AI Inference) + llm-d (CNCF sandbox); Kubernetes Gateway API + Kuadrant (Authorino auth, Limitador rate limiting), mindez a Red Hat Connectivity Link operátoron át — 3.4-hez v1.3 kell, amely MCP gatewayt is hoz. Előfeltételek: OpenShift 4.19.9+, cert-manager, User Workload Monitoring, LWS-operátor, és <strong>ügyfél-oldali PostgreSQL 14+</strong> az API-kulcs életciklushoz („OpenShift AI does not provide a PostgreSQL database“).</p>
-        <p><strong>Árazás.</strong> A MaaS az OpenShift AI része, külön díj nélkül; a Connectivity Link 3.4-től MaaS-használati esetekre be van árazva (szélesebb API-managementhez a teljes Connectivity Link kell). Az OpenShift AI ára: alap OpenShift-előfizetés + GPU-nkénti Red Hat AI Accelerator SKU; a Red Hat AI Enterprise node-onkénti flat díj korlátlan GPU-val. Nyilvános dollárárlista nincs.</p>
-        <p><strong>Rések gateway-szemmel.</strong> Egyklaszteres (multicluster = teljes Connectivity Link); nincs dokumentált cross-provider failover/fallback vagy A/B routing; a 3.3→3.4 átállás breaking migráció (új API-kulcsok minden felhasználónak, állásidő, nincs automatizmus); llm-d prefill/decode szétválasztás FIPS-klasztereken hibás (ismert issue); a guardrails oldal TP. Árulkodó jel: <strong>maga a Red Hat is szállít referencia-integrációkat LiteLLM- és Portkey-frontokhoz</strong> az OpenShift AI modellek elé (blog, 2026-05-14) — implicit elismerés, hogy a dedikált AI-gatewayek gazdagabbak tiszta gateway-feladatra.</p>
+        <p><strong>Árazás.</strong> A MaaS az OpenShift AI része, külön díj nélkül; a Connectivity Link 3.4-től <a href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">a Red Hat AI SKU-khoz csak MaaS-használati esetekre van csomagolva</a> — szélesebb API-managementhez (pl. általános MCP gateway) a teljes Connectivity Link külön előfizetés, részletek az account teammel. Az OpenShift AI ára a <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">subscription guide szerint</a>: alap OpenShift-előfizetés + fizikai GPU-nként egy Red Hat AI Accelerator SKU (8× H100 = 8 SKU; részklaszter-lefedettség megengedett); a Red Hat AI Enterprise node-onkénti flat díj korlátlan GPU-val, AI-workload-megkötéssel. Nyilvános dollárárlista nincs.</p>
+        <p><strong>Rések gateway-szemmel.</strong> Egyklaszteres (multicluster = teljes Connectivity Link); nincs dokumentált cross-provider failover/fallback vagy A/B routing; a 3.3→3.4 átállás breaking migráció (új API-kulcsok minden felhasználónak, állásidő, nincs automatizmus); llm-d prefill/decode szétválasztás FIPS-klasztereken hibás (ismert issue); a guardrails-mag (NeMo) GA, de a MaaS-útvonalba ágyazott inline kényszerítés nem kiemelt GA-funkció. Árulkodó jel: <strong>maga a Red Hat is szállít referencia-integrációkat LiteLLM- és Portkey-frontokhoz</strong> az OpenShift AI modellek elé (blog, 2026-05-14) — implicit elismerés, hogy a dedikált AI-gatewayek gazdagabbak tiszta gateway-feladatra.</p>
       </div>
     </section>
 
@@ -261,28 +261,28 @@
           <tbody data-cat="modell">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Modell-hozzáférés</th></tr>
             <tr>
-              <th scope="row">On-cluster modellek OpenAI-kompatibilis kiszolgálása</th>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/govern_llm_access_with_models-as-a-service/index" target="_blank" rel="noopener">On-cluster modellek OpenAI-kompatibilis kiszolgálása</a></th>
               <td><button type="button" class="cell cell--yes" data-note="GA az llm-d distributed inference runtime-mal; a sima vLLM-publish MaaS-en még Technology Preview.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="vLLM, SGLang, Ollama és bármilyen OpenAI-kompatibilis végpont beköthető; OCP-re Helm-charttal telepíthető.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz az OSS-képesség, SSO- és audit-réteggel.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Azure-beli backendekre igen; on-prem, self-hosted vLLM-et OpenShift-en nem frontol natívan.">részben</button></td>
             </tr>
             <tr>
-              <th scope="row">Külső providerek egy végpont mögött</th>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/govern_llm_access_with_models-as-a-service/index" target="_blank" rel="noopener">Külső providerek egy végpont mögött</a></th>
               <td><button type="button" class="cell cell--tp" data-note="ExternalModel CR — Technology Preview. Validált lista: OpenAI, Anthropic, AWS Bedrock, Azure OpenAI, Vertex; az Azure AI Foundry nincs név szerint említve.">TP</button></td>
               <td><button type="button" class="cell cell--yes" data-note="OpenAI-kompatibilis egyéni végpontok + first-class azure_ai provider: a self-hosted vLLM-et és a Foundryt is natívan hívja.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz, vállalati hitelesítéssel és audit-tal.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Unified model API (preview) több provider felé, Azure-centrikus módon.">részben</button></td>
             </tr>
             <tr>
-              <th scope="row">Cross-provider failover / fallback</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/architecture" target="_blank" rel="noopener">Cross-provider failover / fallback</a></th>
               <td><button type="button" class="cell cell--no" data-note="Nincs dokumentált cross-provider failover, fallback vagy A/B routing.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Router: retry csoporton belül, fallback csoportok között; latency-, költség-, prioritás- és súlyozott stratégiák, cooldown-nal.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Backend pool load balancing és circuit breaker; modell-szintű fallback-logika korlátozott.">részben</button></td>
             </tr>
             <tr>
-              <th scope="row">Self-service modell-hozzáférés fejlesztőknek</th>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/govern_llm_access_with_models-as-a-service/index" target="_blank" rel="noopener">Self-service modell-hozzáférés fejlesztőknek</a></th>
               <td><button type="button" class="cell cell--yes" data-note="Gen AI studio + „Publish as MaaS“ + self-service API-kulcsok a dashboardon — ez a MaaS erőssége.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Admin UI és virtuális kulcsok vannak; a self-service kérési folyamatot építeni kell.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Csapat-szintű kulcs-flow-k SSO-val, teams/projects-modellel.">✓</button></td>
@@ -292,21 +292,21 @@
           <tbody data-cat="koltseg">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Költség és kvóta</th></tr>
             <tr data-same="1">
-              <th scope="row">Token rate limiting (TPM/RPM)</th>
+              <th scope="row"><a class="rowlink" href="https://developers.redhat.com/articles/2026/02/18/manage-ai-resource-use-tokenratelimitpolicy" target="_blank" rel="noopener">Token rate limiting (TPM/RPM)</a></th>
               <td><button type="button" class="cell cell--yes" data-note="TokenRateLimitPolicy (Kuadrant Limitador), subscripciónként és modellenként — GA.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="RPM/TPM kulcs, felhasználó, csapat és modell szinten; számlálók Redis-ben.">✓</button></td>
-              <td><button type="button" class="cell cell--yes" data-note="Plusz rate-limit tierek (Enterprise).">✓</button></td>
+              <td><button type="button" class="cell cell--yes" data-note="Rate-limit tierek: a docs/rate_limit_tiers Enterprise-ként jelöli, de az Enterprise feature-lista nem említi — ellenőrizendő.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="llm-token-limit policy, kulcsonkénti token-kvótával.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Költségkeret (büdzsé) kulcs/csapat szinten</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/users" target="_blank" rel="noopener">Költségkeret (büdzsé) kulcs/csapat szinten</a></th>
               <td><button type="button" class="cell cell--no" data-note="Token-kvóta van; dollár-alapú büdzsé nincs.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Büdzsék kulcs/felhasználó/csapat/org szinten, aszinkron spend tracking-gel.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Plusz modell-specifikus és custom-tag büdzsék.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Token-limit igen; dollár-költségkeret nem natív policy-szinten.">részben</button></td>
             </tr>
             <tr>
-              <th scope="row">Showback / költség-riportálás</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/architecture" target="_blank" rel="noopener">Showback / költség-riportálás</a></th>
               <td><button type="button" class="cell cell--tp" data-note="Observability dashboard + CSV-export — Technology Preview; chargeback/számlázás nincs.">TP</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Aszinkron spend tracking, Prometheus/OTel-metrikák, cache dashboard.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Plusz /spend/report és GCS/Azure Blob log-export.">✓</button></td>
@@ -316,28 +316,28 @@
           <tbody data-cat="biztonsag">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Biztonság és guardrails</th></tr>
             <tr>
-              <th scope="row">Prompt injection / PII védelem inline</th>
-              <td><button type="button" class="cell cell--tp" data-note="NeMo Guardrails / TrustyAI-integráció nagyrészt Technology Preview.">TP</button></td>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/enabling_ai_safety_with_guardrails/enabling-ai-safety-with-nemo-guardrails_nemo-guardrails" target="_blank" rel="noopener">Prompt injection / PII védelem inline</a></th>
+              <td><button type="button" class="cell cell--part" data-note="A NeMo Guardrails GA az OpenShift AI 3.4-ben, de a MaaS-végpontok elé ágyazott inline kényszerítés nem kiemelt GA-funkció; a Gen AI studio playground-guardrails TP.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Egységes guardrails-keret: Presidio (PII), Lakera, Azure Content Safety, Bedrock, Pillar, Lasso, Pangea, Model Armor, egyéni.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Plusz kulcs-/csapat-szintű guardrail-szabályozás.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="llm-content-safety policy (Azure AI Content Safety: Prompt Shields, moderálás, groundedness).">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">SSO / külső identitásszolgáltató</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/admin_ui_sso" target="_blank" rel="noopener">SSO / külső identitásszolgáltató</a></th>
               <td><button type="button" class="cell cell--part" data-note="OpenShift csoport-auth GA; külső OIDC (Azure AD, Okta, Keycloak) Technology Preview.">részben</button></td>
               <td><button type="button" class="cell cell--no" data-note="Az SSO (OIDC/SAML) Enterprise-funkció.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="OIDC + SAML 2.0 (v1.95.0 óta), SCIM-provisioning.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Microsoft Entra ID natívan.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Audit-naplózás megfelelőségi célra</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/enterprise" target="_blank" rel="noopener">Audit-naplózás megfelelőségi célra</a></th>
               <td><button type="button" class="cell cell--part" data-note="Használati metrikák vannak; audit-trail nem kiemelt képesség.">részben</button></td>
               <td><button type="button" class="cell cell--part" data-note="Részletes request-logok; retenció és audit-napló Enterprise.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Audit logs retencióval; GDPR-s kompatibilis log-szabályozás.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Azure Monitor / App Insights naplózás.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Secret-manager integráció</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/enterprise" target="_blank" rel="noopener">Secret-manager integráció</a></th>
               <td><button type="button" class="cell cell--no" data-note="Nem dokumentált.">✗</button></td>
               <td><button type="button" class="cell cell--no" data-note="Enterprise-funkció.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="AWS KMS, GCP Secret Manager, Azure Key Vault, HashiCorp Vault.">✓</button></td>
@@ -347,21 +347,21 @@
           <tbody data-cat="mcp">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">MCP és ügynökök</th></tr>
             <tr>
-              <th scope="row">MCP gateway</th>
-              <td><button type="button" class="cell cell--part" data-note="A Connectivity Link 1.3 MCP gateway-t hoz, de az a MaaS-scope-on túlmutat (külön termékskóp).">részben</button></td>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/mcp" target="_blank" rel="noopener">MCP gateway</a></th>
+              <td><button type="button" class="cell cell--part" data-note="A Connectivity Link MCP gateway-je (1.3.3+, 1.4-ben is) Technology Preview; a MaaS-licencscope-on túlnyúló használata külön RHCL-előfizetést igényelhet — account teammel egyeztetendő.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Szerver-aggregáció, tool-namespacing, OAuth2/OBO, felhasználónkénti entitlements a tools/list és tools/call szinten.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="MCP-szerver támogatás és OAuth ügynököknek/MCP-nek.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">A2A ügynök-proxy</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/a2a" target="_blank" rel="noopener">A2A ügynök-proxy</a></th>
               <td><button type="button" class="cell cell--no" data-note="Nincs A2A gateway a MaaS-ben.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="v1.80.8 (2025-12) óta; Azure AI Foundry ágenseket, LangGraphot, Vertexet, Bedrock AgentCore-t is proxyz.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="A2A agent API támogatás.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Tool-result guardrails (MCP-válaszok szűrése)</th>
+              <th scope="row"><a class="rowlink" href="https://docs.litellm.ai/docs/proxy/guardrails/quick_start" target="_blank" rel="noopener">Tool-result guardrails (MCP-válaszok szűrése)</a></th>
               <td><button type="button" class="cell cell--no" data-note="Nem dokumentált.">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="post_mcp_call guardrails (v1.96–1.97): tool-válaszok szkennelése/maszkolása.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
@@ -371,21 +371,21 @@
           <tbody data-cat="uzem">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Üzemeltetés</th></tr>
             <tr>
-              <th scope="row">On-prem OpenShift-en futtatható</th>
+              <th scope="row"><a class="rowlink" href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">On-prem OpenShift-en futtatható</a></th>
               <td><button type="button" class="cell cell--yes" data-note="OpenShift AI-komponens, operátorból települ.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Helm-chart; arbitrary-UID (OpenShift SCC-kompatibilis) image-ek.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
               <td><button type="button" class="cell cell--no" data-note="Azure PaaS; on-prem nem fut.">✗</button></td>
             </tr>
             <tr>
-              <th scope="row">Multi-cluster / HA-DR</th>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.4/html/release_notes/rhcl-release-notes" target="_blank" rel="noopener">Multi-cluster / HA-DR</a></th>
               <td><button type="button" class="cell cell--part" data-note="Single-cluster; multicluster routing/HA-DR-hez a teljes Connectivity Link kell.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Állapotmentes podok load balancer mögött; megosztott állapot Postgres + Redis.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ugyanaz.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Multi-region, Azure-on belül.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Deklaratív / GitOps konfiguráció</th>
+              <th scope="row"><a class="rowlink" href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/govern_llm_access_with_models-as-a-service/index" target="_blank" rel="noopener">Deklaratív / GitOps konfiguráció</a></th>
               <td><button type="button" class="cell cell--yes" data-note="CRD-alapú (MaaSSubscription, MaaSAuthPolicy…) — GitOps-barát.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Config-fájl + adatbázis; a promptok GitOps-ban kezelhetők (.prompt).">részben</button></td>
               <td><button type="button" class="cell cell--part" data-note="Ugyanaz.">részben</button></td>
@@ -395,21 +395,21 @@
           <tbody data-cat="licenc">
             <tr class="matrix__cat"><th colspan="5" scope="rowgroup">Licenc és támogatás</th></tr>
             <tr>
-              <th scope="row">Nyílt forrású mag</th>
+              <th scope="row"><a class="rowlink" href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">Nyílt forrású mag</a></th>
               <td><button type="button" class="cell cell--part" data-note="Nyílt alapokon (Kuadrant, llm-d, Envoy), de Red Hat-előfizetéshez kötött.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="MIT-licencű mag.">✓</button></td>
               <td><button type="button" class="cell cell--part" data-note="Open-core: MIT mag + kommerciális /enterprise könyvtár.">részben</button></td>
               <td><button type="button" class="cell cell--no" data-note="Proprietary Azure-szolgáltatás.">✗</button></td>
             </tr>
             <tr>
-              <th scope="row">Vállalati, SLA-s támogatás</th>
+              <th scope="row"><a class="rowlink" href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">Vállalati, SLA-s támogatás</a></th>
               <td><button type="button" class="cell cell--yes" data-note="Red Hat SLA a GA elemekre (TP-elemekre nincs).">✓</button></td>
               <td><button type="button" class="cell cell--no" data-note="Közösségi támogatás (GitHub/Discord).">✗</button></td>
               <td><button type="button" class="cell cell--yes" data-note="SLA-s csomagok; az ár nem hivatalos forrásból ismert.">✓</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Microsoft SLA.">✓</button></td>
             </tr>
             <tr>
-              <th scope="row">Nyilvános ár</th>
+              <th scope="row"><a class="rowlink" href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">Nyilvános ár</a></th>
               <td><button type="button" class="cell cell--part" data-note="Az OpenShift AI része, külön díj nélkül; dollárárlista nem publikus.">részben</button></td>
               <td><button type="button" class="cell cell--yes" data-note="Ingyenes (MIT).">✓</button></td>
               <td><button type="button" class="cell cell--no" data-note="Nem publikus; versenytárs-források ~250 USD/hó és ~30 000 USD/év nagyságrendet említenek — nem hivatalos forrás.">✗</button></td>
@@ -646,56 +646,60 @@
           <tbody>
             <tr>
               <th scope="row">Prompt injection / jailbreak</th>
-              <td>NeMo Guardrails (self-check rail-ek, jailbreak-konfig) + FMS Guardrails Orchestrator DeBERTa prompt-injection detektor — TrustyAI operator, a vLLM/KServe elé</td>
+              <td>NeMo Guardrails (self-check rail-ek, jailbreak-konfig) + FMS Guardrails Orchestrator DeBERTa prompt-injection detektor — TrustyAI operator, a vLLM/KServe elé<span class="lic">Licenc: <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">OpenShift AI alap-előfizetés</a> — komponens, külön díj nélkül</span></td>
               <td><button type="button" class="cell cell--yes" data-note="OpenShift AI 3.4 release notes: a NeMo Guardrails 3.3 TP után 3.4-ben fully supported; a 3.5-ös guardrails-könyv jailbreak-konfigot is dokumentál.">GA · 3.4</button></td>
             </tr>
             <tr>
               <th scope="row">PII a promptban / válaszban</th>
-              <td>NeMo Guardrails Presidio-detektor (blokkolás <em>vagy</em> [MASKED] maszkolás input/output irányban) + FMS regex-PII detektor</td>
+              <td>NeMo Guardrails Presidio-detektor (blokkolás <em>vagy</em> [MASKED] maszkolás input/output irányban) + FMS regex-PII detektor<span class="lic">Licenc: <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">OpenShift AI alap-előfizetés</a> — komponens</span></td>
               <td><button type="button" class="cell cell--yes" data-note="GA 3.4-ben; a Guardrails Gateway sidecar preset pipeline-t is ad (pl. /pii/v1/chat/completions).">GA · 3.4</button></td>
             </tr>
             <tr>
               <th scope="row">Káros tartalom moderálása</th>
-              <td>NeMo self-check output rail + HAP-detektor (granite-guardian-hap-38m) az FMS Orchestratorban</td>
+              <td>NeMo self-check output rail + HAP-detektor (granite-guardian-hap-38m) az FMS Orchestratorban<span class="lic">Licenc: <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">OpenShift AI alap-előfizetés</a> — komponens</span></td>
               <td><button type="button" class="cell cell--yes" data-note="GA 3.4; a Llama Stack / OGX playground shield-változat (Llama Guard, Prompt Guard) még TP 3.5 EA-ban.">GA · 3.4</button></td>
             </tr>
             <tr>
               <th scope="row">Token-DoS / költségrobbanás</th>
-              <td>MaaS token-kvóták subscripciónként (GA 3.4) + Connectivity Link <code>TokenRateLimitPolicy</code> (tényleges tokeneket számlál a válaszokból)</td>
+              <td>MaaS token-kvóták subscripciónként (GA 3.4) + Connectivity Link <code>TokenRateLimitPolicy</code> (tényleges tokeneket számlál a válaszokból)<span class="lic">Licenc: OpenShift AI (MaaS-kvóták) + <a href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">Connectivity Link</a> — MaaS-use-case-re az OpenShift AI-hoz jár; egyéb API-kra külön RHCL-előfizetés kellhet</span></td>
               <td><button type="button" class="cell cell--yes" data-note="MaaS-kvóták GA 3.4-ben; a TokenRateLimitPolicy dokumentált és demózott RHCL-en, formális GA-mondatot nem találtunk — jelölve.">GA</button></td>
             </tr>
             <tr>
               <th scope="row">Ágens-identitás</th>
-              <td>Zero Trust Workload Identity Manager (SPIFFE/SPIRE): rövid életű SVID-k a statikus API-kulcsok helyett — az OpenShift Platform Plus része</td>
+              <td>Zero Trust Workload Identity Manager (SPIFFE/SPIRE): rövid életű SVID-k a statikus API-kulcsok helyett<span class="lic">Licenc: <a href="https://www.redhat.com/en/blog/zero-trust-workload-identity-manager-generally-available-red-hat-openshift" target="_blank" rel="noopener">OpenShift Platform Plus</a> — csak ezzel hivatalos; core-pár / per-node mérés</span></td>
               <td><button type="button" class="cell cell--yes" data-note="GA 2026 január vége óta; multicluster federáció, Vault secretless auth. A per-ágens Kagenti AgentRuntime CRD még roadmap.">GA · 2026-01</button></td>
             </tr>
             <tr>
               <th scope="row">Inference-infra védelem (GPU-node, modellfájlok)</th>
-              <td>Cilium identitás-alapú FQDN/L7 policy + Tetragon File Integrity Monitoring a modell- és tanítófájlokon + OpenShift SCC/SELinux/Kata sandbox</td>
+              <td>Cilium identitás-alapú FQDN/L7 policy + Tetragon File Integrity Monitoring a modell- és tanítófájlokon + OpenShift SCC/SELinux/Kata sandbox<span class="lic">Licenc: <a href="https://isovalent.com/" target="_blank" rel="noopener">Isovalent Enterprise Platform</a> (Networking + Runtime Security pillér) + OpenShift-előfizetés (a Kata-sandbox külön díj nélkül jár)</span></td>
               <td><button type="button" class="cell cell--yes" data-note="Isovalent „Securing AI/ML Workloads“ (2025-12): MITRE ATLAS AML.T0018/T0010/T0015 és OWASP LLM01/03/04 leképezés. Adatmérgezés-detektálás FIM-mel.">GA</button></td>
             </tr>
             <tr>
               <th scope="row">AI red teaming</th>
-              <td>Garak (120+ probe) a Llama Stack / OGX disztribúcióban + Chatterbox Labs AIMI-technológia (felvásárlás 2025-12)</td>
+              <td>Garak (120+ probe) a Llama Stack / OGX disztribúcióban + Chatterbox Labs AIMI-technológia (felvásárlás 2025-12)<span class="lic">Licenc: <a href="https://www.redhat.com/en/resources/ai-subscription-guide-detail" target="_blank" rel="noopener">OpenShift AI alap-előfizetés</a> — komponens, TP-támogatással</span></td>
               <td><button type="button" class="cell cell--part" data-note="A 3.4 release notes GA „New features“ közt sorolja a Garak-providert, a Red Hat Developer cikk TP-ként írja le — a források eltérnek, ezért GA/TP-keverékként jelöljük.">GA/TP</button></td>
             </tr>
             <tr>
               <th scope="row">MCP tool-call authorize (a Lilith Zero-osztály)</th>
-              <td>Connectivity Link MCP gateway: OAuth2 authN, felhasználónkénti tool-ACL (<code>x-authorized-tools</code>), virtuális MCP szerverek (tool-almazosítók), audit trail</td>
-              <td><button type="button" class="cell cell--part" data-note="RHCL 1.3.3 (2026-04-30) óta Technology Preview, az 1.4-ben (2026-07) is az — nincs production SLA. A NeMo × MCP gateway tool-call guardrails integráció szintén TP (3.5 EA). Ez a licencen belüli terv leggyengébb pontja; GA-ig a LiteLLM MCP-entitlements + tool-result guardrails áthidalja.">TP</button></td>
+              <td>Connectivity Link MCP gateway: OAuth2 authN, felhasználónkénti tool-ACL (<code>x-authorized-tools</code>), virtuális MCP szerverek (tool-almazosítók), audit trail<span class="lic">Licenc: <a href="https://access.redhat.com/articles/rhoai-supported-configs-3.x" target="_blank" rel="noopener">Connectivity Link</a> — MaaS-use-case-ben az OpenShift AI-hoz jár; általános MCP/API-használatra külön RHCL-előfizetés kellhet (account teammel egyeztetendő)</span></td>
+              <td><button type="button" class="cell cell--part" data-note="RHCL 1.3.3 (2026-04-30) óta Technology Preview, az 1.4-ben (2026-07) is — de az 1.4-ben az MCP prompt federation már GA, és audit-trail + Vault credential-injection doksi érkezett; az 1.4.0 deprecated, 1.4.1+ kell. A NeMo × MCP gateway tool-call guardrails integráció szintén TP (3.5 EA). Ez a licencen belüli terv leggyengébb pontja; GA-ig a LiteLLM MCP-entitlements + tool-result guardrails áthidalja — enterprise-erősségű OSS alternatíva az MCP-síkra: agentgateway (lásd 09).">TP</button></td>
             </tr>
             <tr>
               <th scope="row">AI-asset / shadow-AI felderítés (AI-BOM, MCP-katalógus)</th>
-              <td><strong>Nincs licencen belüli megoldás.</strong> Ez a Cisco AI Defense (MCP Catalog, AI BOM, red teaming, agentic guardrails) — <strong>külön Cisco Security SKU, nem része az Isovalent-licencnek</strong>; részleges hálózati szintű mérséklés: Cilium FQDN-egress + OpenShift EgressFirewall</td>
+              <td><strong>Nincs licencen belüli megoldás.</strong> Ez a Cisco AI Defense (MCP Catalog, AI BOM, red teaming, agentic guardrails) — <strong>külön Cisco Security SKU, nem része az Isovalent-licencnek</strong>; részleges hálózati szintű mérséklés: Cilium FQDN-egress + OpenShift EgressFirewall<span class="lic">Licenc: nincs — <a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m02/cisco-redefines-security-for-the-agentic-era.html" target="_blank" rel="noopener">Cisco AI Defense</a> külön SKU (SaaS control plane; ár nem nyilvános)</span></td>
               <td><button type="button" class="cell cell--no" data-note="A Cisco 2026-02-10-i AI Defense kibővítése (AI BOM, MCP Catalog, NeMo-integráció) a Secure AI Factory része — referencia-architektúra szinten illeszkedik az Isovalent-rétegekhez, termékszinten nem olvad bele. Az árazás nem nyilvános.">nincs</button></td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <div class="prose">
+        <p><strong>Azure-oldali fedezet (Foundry-adopció esetén):</strong> a <a href="https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview" target="_blank" rel="noopener">Prompt Shields</a> már 2024-08 óta GA (direkt + indirekt injekció-detektálás; külön mért Azure AI Content Safety erőforrás, 1000 szövegrekordonként számlázva); az <strong>Entra Agent ID 2026-04 óta GA</strong>, a <strong>Microsoft Agent 365 2026-05-01 óta GA</strong> (~15 USD/user/hó — ügynök-regiszter, sponsor, audit); a Defender AI Prompt Shield még Preview. Vagyis az Azure-láb sem igényel harmadik féltől AI-securityt — a hiányzó cella továbbra is a multi-platform AI-asset-felderítés.</p>
+      </div>
+
       <h3 class="subhead">Mi is a Lilith Zero pontosan?</h3>
       <div class="prose">
-        <p>A <strong>Lilith Zero</strong> (<code>BadC-mpany/lilith-zero</code>) egy kis közösségi OSS-projekt: Rust-ban írt, determinisztikus security middleware MCP tool-hívásokhoz — statikus ACL-ek, session taint tracking, „lethal trifecta“ exfiltration-blokkolás, HMAC-aláírt audit log, hookok Claude Code-hoz és GitHub Copilothoz (Apache-2.0, Kani-verified; Show HN 2026-04-06). <strong>Nem vállalati termék, nem prompt-tűzfal</strong>: a prompt tartalmát nem vizsgálja, a tool-call-következményeket korlátozza. A kategória komoly, vállalati képviselői más eszközök — és sorban felvásárolták őket: Lakera → Check Point (2025-09, ~300&nbsp;M USD), Protect AI → Palo Alto (Prisma AIRS, 2025-07), Prompt Security → SentinelOne (2025-08, ~250&nbsp;M USD).</p>
+        <p>A <strong>Lilith Zero</strong> (<code>BadC-mpany/lilith-zero</code>) egy kis közösségi OSS-projekt: Rust-ban írt, determinisztikus security middleware MCP tool-hívásokhoz — statikus ACL-ek, session taint tracking, „lethal trifecta“ exfiltration-blokkolás, HMAC-aláírt audit log, hookok Claude Code-hoz és GitHub Copilothoz (Apache-2.0, Kani-verified; Show HN 2026-04-06). <strong>Nem vállalati termék, nem prompt-tűzfal</strong>: a prompt tartalmát nem vizsgálja, a tool-call-következményeket korlátozza. A kategória komoly, vállalati képviselői más eszközök — és sorban felvásárolták őket: Lakera → Check Point (2025-09, ~300&nbsp;M USD), Protect AI → Palo Alto (Prisma AIRS, 2025-07), Prompt Security → SentinelOne (lezárt 2025-09-05, ~159&nbsp;M USD a SentinelOne negyedéves jelentése szerint).</p>
       </div>
       <div class="note-box">
         <p class="note-box__label">Ítélet — tisztességesen, rétegenként</p>
@@ -744,7 +748,7 @@
             <li>DR/multi-cluster stratégia (ha több klaszter: Cilium Cluster Mesh értékelése, globális service-ekhez).</li>
             <li>LiteLLM Rust data plane újraértékelése, amikor production-érett (cél: 2026. december).</li>
             <li>RH MaaS külső routing újraértékelése, amint GA-ra kerül.</li>
-            <li>Connectivity Link MCP gateway (ma TP) GA-követése: átállás a licencen belüli MCP tool-call authorize-ra; addig LiteLLM MCP-entitlements.</li>
+            <li>Connectivity Link MCP gateway (ma TP) GA-követése: átállás a licencen belüli MCP tool-call authorize-ra; addig LiteLLM MCP-entitlements — vagy agentgateway-pilot az MCP-síkra, ha a TP-státusz banki szempontból kényelmetlen (LF/AAIF-projekt, Red Hat-kontribúcióval).</li>
             <li>Döntés az AI-asset/shadow-AI felderítésről (AI-BOM): licencen belül nincs rá eszköz — Cisco AI Defense (külön SKU) vagy hálózati szintű mérséklés (Cilium FQDN + EgressFirewall).</li>
           </ul>
         </li>
@@ -755,6 +759,11 @@
     <section class="section" id="alternativak" aria-labelledby="h-alternativak">
       <h2 class="section__title" id="h-alternativak"><span class="h-num">09</span> Alternatívák röviden</h2>
       <div class="alt-grid">
+        <article class="alt-card">
+          <h3>agentgateway</h3>
+          <p class="alt-card__status">ígéretes · alapítványi governance · MCP/A2A-sík</p>
+          <p>Apache-2.0, Rust: MCP routing + federáció + virtualizáció, tool-szintű ACL-ek, RBAC, JWT, mTLS, CEL-policy, rate limiting, MCP-szkenner. 2026-06 óta a <a href="https://agentgateway.dev/blog/2026-06-04-agentgateway-joins-aaif/" target="_blank" rel="noopener">Linux Foundation Agentic AI Foundation</a> projektje — 300+ kontributor 60+ szervezettől, köztük a <strong>Red Hat</strong> és a Microsoft; vállalati támogatás: Solo Enterprise (2025-10 óta). Ez a Lilith Zero-osztály enterprise-erősségű, termelésben ma is futtatható utódja — az MCP/A2A-síkra, a LiteLLM (LLM-sík) mellé, vagy az RHCL MCP gateway GA-jáig hedge-ként. Fiatal projekt; ne harmadik LLM-proxyként futtassuk, hanem scope-olva az MCP-síkra.</p>
+        </article>
         <article class="alt-card">
           <h3>Kong AI Gateway</h3>
           <p class="alt-card__status">érett · enterprise-gated</p>
@@ -808,6 +817,21 @@
             <li><a href="https://www.redhat.com/en/blog/red-hat-acquire-chatterbox-labs-frequently-asked-questions" target="_blank" rel="noopener">Red Hat blog — Chatterbox Labs felvásárlás FAQ (Garak/AIMI)</a> <span class="sources__date">2025-12-16</span></li>
             <li><a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m02/cisco-redefines-security-for-the-agentic-era.html" target="_blank" rel="noopener">Cisco Newsroom — AI Defense kibővítés (AI BOM, MCP Catalog; külön SKU)</a> <span class="sources__date">2026-02-10</span></li>
             <li><a href="https://blogs.cisco.com/datacenter/accelerating-agent-intelligence-cisco-secure-ai-factory-expands-with-nvidia-and-vast" target="_blank" rel="noopener">Cisco Blogs — Secure AI Factory (Isovalent + AI Defense referencia-architektúra)</a> <span class="sources__date">2026-02-25</span></li>
+          </ul>
+        </div>
+        <div class="sources__group">
+          <h3>MCP / ügynök-biztonság + whitepaperek <span class="sources__date">frissítés 2026-08-18</span></h3>
+          <ul class="sources__list">
+            <li><a href="https://agentgateway.dev/blog/2026-06-04-agentgateway-joins-aaif/" target="_blank" rel="noopener">agentgateway csatlakozik a Linux Foundation Agentic AI Foundationhoz</a> <span class="sources__date">2026-06-04</span></li>
+            <li><a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener">Linux Foundation — az Agentic AI Foundation megalakulása (Anthropic MCP-donáció)</a> <span class="sources__date">2025-12-09</span></li>
+            <li><a href="https://www.globenewswire.com/news-release/2025/10/15/3167147/0/en/Solo-io-Launches-Solo-Enterprise-for-agentgateway-and-Solo-Labs-for-MCP.html" target="_blank" rel="noopener">Solo.io — Solo Enterprise for agentgateway</a> <span class="sources__date">2025-10-15</span></li>
+            <li><a href="https://genai.owasp.org/resources/" target="_blank" rel="noopener">OWASP — Top 10 for Agentic Applications 2026 + Guide for Secure MCP Servers</a> <span class="sources__date">2026</span></li>
+            <li><a href="https://www.matematicsolutions.com/baza-wiedzy/pdf/2026-06-11-owasp-state-of-agentic-ai-security-governance.pdf" target="_blank" rel="noopener">OWASP — State of Agentic AI Security and Governance v2.01 (PDF)</a> <span class="sources__date">2026-06</span></li>
+            <li><a href="https://labs.cloudsecurityalliance.org/research/csa-research-note-nist-ai-agent-standards-federal-framework/" target="_blank" rel="noopener">NIST NCCoE — AI-ágens identitás és authorize (OAuth 2.0 + SPIFFE/SPIRE; CSA-összefoglaló)</a> <span class="sources__date">2026-02/03</span></li>
+            <li><a href="https://labs.cloudsecurityalliance.org/agentic/agentic-nist-ai-rmf-profile-v1/" target="_blank" rel="noopener">NIST AI RMF Agentic Profile v1 (draft)</a> <span class="sources__date">2026-05-20</span></li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview" target="_blank" rel="noopener">Microsoft Learn — Azure AI Content Safety / Prompt Shields (GA 2024-08 óta)</a> <span class="sources__date">2026-01-31</span></li>
+            <li><a href="https://techcommunity.microsoft.com/blog/agent-365-blog/what%E2%80%99s-new-in-agent-365-may-2026/4516340" target="_blank" rel="noopener">Microsoft — Agent 365 GA (ügynök-regiszter, ~15 USD/user/hó)</a> <span class="sources__date">2026-05-01</span></li>
+            <li><a href="https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/" target="_blank" rel="noopener">SentinelOne — Prompt Security felvásárlás (az ár a 10-Q szerint ~159 M USD)</a> <span class="sources__date">2025-08-05</span></li>
           </ul>
         </div>
         <div class="sources__group">
@@ -901,7 +925,7 @@
   <footer class="colophon">
     <p>Készült: 2026. augusztus · belső architektúra-döntési anyag · kutatás dátuma: 2026-08-17 · nem minősített. Az anyag statikus oldal, külső szkript vagy nyomkövető nélkül; forrás: <a href="https://github.com/mcftira/maas-vs-litellm" target="_blank" rel="noopener">github.com/mcftira/maas-vs-litellm</a>.</p>
     <p>A logók az azokat birtokló cégek védjegyei: Red Hat és OpenShift — Red Hat, Inc.; LiteLLM — BerriAI, Inc.; Azure — Microsoft; Cilium és Tetragon — Isovalent, Inc. / The Linux Foundation (CNCF); Kubernetes — The Linux Foundation; NVIDIA — NVIDIA Corporation. Kizárólag azonosítási és összehasonlítási céllal, a hivatalos forrásokból (CNCF artwork repo, Wikimedia Commons, gyártói repók); részletek: <code>assets/logos/ATTRIBUTION.md</code>. A védjegyek használata nem jelent támogatást vagy jóváhagyást.</p>
-    <p>Tipográfia: Space Grotesk (display), Inter (szöveg), JetBrains Mono (jelölések) — Google Fonts, helyben kiszolgált woff2-példányok. Minden szám a 10. szakaszban hivatkozott, dátumozott forrásokból származik; a nem hivatalos adatok a helyükön külön jelölve.</p>
+    <p>Tipográfia: Space Grotesk (display), Geist (szöveg), JetBrains Mono (jelölések) — helyben kiszolgált woff2-példányok. Minden szám a 10. szakaszban hivatkozott, dátumozott forrásokból származik; a nem hivatalos adatok a helyükön külön jelölve.</p>
   </footer>
 
   <script src="assets/site.js" defer></script>
