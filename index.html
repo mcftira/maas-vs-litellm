@@ -111,17 +111,27 @@
     <section class="section" id="kiindulas" aria-labelledby="h-kiindulas">
       <h2 class="section__title" id="h-kiindulas"><span class="h-num">02</span> Kiinduló állapot</h2>
       <div class="prose">
-        <p>A jelenlegi platform egy on-prem <strong>OpenShift AI</strong> klaszter <strong>8× NVIDIA H100 80&nbsp;GB</strong> GPU-val (összesen 640&nbsp;GB GPU-memória), amelyen agentic coding workload fut — fejlesztői IDE-k és coding ágensek egy helyben kiszolgált, „GLM-5.2“-nek nevezett modellt használnak. A terv: <strong>Azure AI Foundry</strong> modellek bevonása ugyanabba a fogyasztási felületbe. A nyitott architektúra-kérdés: elég-e a fejlesztői laptopok hozzáférése mindkét végponthoz, vagy tűzfalnyitás kell az on-prem OpenShift és az AKS / Foundry közé. (A válasz: a 06. szakasz.)</p>
+        <p>A jelenlegi platform egy on-prem <strong>OpenShift AI</strong> klaszter <strong>8× NVIDIA H100 80&nbsp;GB</strong> GPU-val (összesen 640&nbsp;GB GPU-memória), amelyen agentic coding workload fut — fejlesztői IDE-k és coding ágensek egy helyben kiszolgált <strong>GLM-5.2 modellt NVFP4-kvantálásban</strong> használnak (a platformcsapat megerősítése szerint stabilan, jól működik). A terv: <strong>Azure AI Foundry</strong> modellek bevonása ugyanabba a fogyasztási felületbe. A nyitott architektúra-kérdés: elég-e a fejlesztői laptopok hozzáférése mindkét végponthoz, vagy tűzfalnyitás kell az on-prem OpenShift és az AKS / Foundry közé. (A válasz: a 06. szakasz.)</p>
         <h3>Kapacitás-jegyzet — őszintén, mert architektúra-döntést befolyásol</h3>
         <p>A GLM-5.2 kb. 744 milliárd paraméteres MoE-modell (1M token kontextus, MIT licenc, hivatalos FP8 checkpoint). A memória-aritmetika: <strong>az FP8 súlyok ~744&nbsp;GB-ot igényelnek, ami meghaladja az 8× H100 80&nbsp;GB = 640&nbsp;GB-ot</strong>. A dokumentált referencia-konfigurációk (vLLM recipe, SGLang-telepítési útmutatók) 8× H200-at (141&nbsp;GB GPU-nként) vagy több node-ot említenek. Az interneten keringő „8× H100-on elfér FP8-ban“ állításokat a számtan cáfolja.</p>
-        <p>Következmény: a jelenlegi klaszteren vagy <strong>4-bites kvantálás</strong> fut (~370–400&nbsp;GB), vagy <strong>GLM-4.5/4.6-osztályú</strong> (355&nbsp;B) modell — az FP8-ban kényelmesen belefér. A 2026-08-15-én bejelentett <strong>GLM-5.3</strong> ugyanazt a bázist használja több post-traininggel; nyílt súlyai a kutatás dátumáig (2026-08-17) még nem publikusak. FP8-os GLM-5.2/5.3-hoz tehát H200-as node vagy 2×8 H100 kell — ezt a 08. szakasz ütemterve rögzíti.</p>
+        <p>Következmény — már nem feltételezés, hanem megerősített tény: a klaszteren <strong>GLM-5.2 NVFP4</strong> fut (NVIDIA 4-bites FP4-kvantálás, ~370–400&nbsp;GB), a csapat jelentése szerint jó minőségben; ez a gyakorlati válasz az FP8-as memória-falon. Nyitott kérdés a <strong>skálázás</strong>: konkurencia, hosszú kontextus és agentic terhelés mellett hol fogy el a maradék memória (KV-cache) — erre készül a benchmark-terv lentebb. A 2026-08-15-én bejelentett <strong>GLM-5.3</strong> ugyanazt a bázist használja több post-traininggel; nyílt súlyai a kutatás dátumáig (2026-08-17) még nem publikusak. FP8-os GLM-5.2/5.3-hoz tehát H200-as node vagy 2×8 H100 kell — ezt a 08. szakasz ütemterve rögzíti.</p>
       </div>
       <dl class="stat-strip">
         <div class="stat"><dt>8× H100 80&nbsp;GB</dt><dd class="stat__num">640&nbsp;GB</dd><dd class="stat__qual">összes GPU-memória a node-on</dd></div>
         <div class="stat"><dt>GLM-5.2, FP8</dt><dd class="stat__num">~744&nbsp;GB</dd><dd class="stat__qual">csak a súlyok — nem fér el</dd></div>
-        <div class="stat"><dt>GLM-5.2, 4-bit</dt><dd class="stat__num">~370–400&nbsp;GB</dd><dd class="stat__qual">kvantálva belefér</dd></div>
+        <div class="stat"><dt>GLM-5.2, 4-bit</dt><dd class="stat__num">~370–400&nbsp;GB</dd><dd class="stat__qual">NVFP4 — a jelenlegi, megerősített konfig</dd></div>
         <div class="stat"><dt>GLM-4.5/4.6, FP8</dt><dd class="stat__num">~355&nbsp;GB</dd><dd class="stat__qual">355B-osztály — kényelmesen elfér</dd></div>
       </dl>
+      <div class="note-box">
+        <p class="note-box__label">Benchmark-terv — hogyan skálázódik az NVFP4-es GLM-5.2</p>
+        <ul class="tick-list tick-list--plain">
+          <li><strong>Metrikák:</strong> TTFT (time to first token), ITL/TPOT, összteljesítmény (tokens/s) p50/p95, hibaarány — 8→64 konkurens agentic sessionön át.</li>
+          <li><strong>Terhelés:</strong> valós coding-trace-ek (rövid prompt + hosszú generálás), plusz hosszúkontextus-tesztek 128K→1M felé — itt a KV-cache a szűk keresztmetszet, nem a súlyok.</li>
+          <li><strong>Skálázási dimenziók:</strong> MoE expert-parallelism és tensor-parallel beállítások, prefill/decode szétválasztás (llm-d), kérés-prioritás (MaaS subscripció-szintek).</li>
+          <li><strong>Eszköz:</strong> vLLM <code>benchmark_serving</code> vagy GuideLLM; eredmények a LiteLLM OTel/Prometheus-felülettel egyeztetve — a gateway-overhead is látszódjon.</li>
+          <li><strong>Döntési kimenet:</strong> mikor éri meg a H200-node (FP8) vagy a 2×8 H100 — a benchmark adja meg, nem a spekuláció.</li>
+        </ul>
+      </div>
     </section>
 
     <!-- ============ 3 · RED HAT MAAS ============ -->
@@ -745,7 +755,7 @@
           <p class="roadmap__when">90+ nap</p>
           <h3>Skálázás és újraértékelés</h3>
           <ul class="tick-list tick-list--plain">
-            <li>GLM-5.2/5.3 kapacitástervezés: H200-node vagy 2×8 H100 FP8-hoz; addig 4-bit vagy GLM-4.6-osztály.</li>
+            <li>GLM-5.2 NVFP4 skálázási benchmark lefuttatása (02. szakasz terv szerint: TTFT/ITL, konkurencia-skála, KV-cache-határok, llm-d prefill/decode); a H200-node (FP8) vagy 2×8 H100 döntés az eredményekre.</li>
             <li>Showback/chargeback-folyamat a LiteLLM spend-exportokra.</li>
             <li>DR/multi-cluster stratégia (ha több klaszter: Cilium Cluster Mesh értékelése, globális service-ekhez).</li>
             <li>LiteLLM Rust data plane újraértékelése, amikor production-érett (cél: 2026. december).</li>
@@ -946,7 +956,7 @@
         <div class="glossary__item"><dt>ExpressRoute</dt><dd>Dedikált privát vonal a vállalati hálózat és az Azure közé; a Private Link + ExpressRoute a C minta alapja.</dd></div>
         <div class="glossary__item"><dt>FIM (File Integrity Monitoring)</dt><dd>Fájlintegritás-figyelés — a Tetragonnal a modell- és tanítófájlokon (adatmérgezés-detektálás).</dd></div>
         <div class="glossary__item"><dt>FMS Guardrails Orchestrator</dt><dd>TrustyAI-operált detektor-zenekar: regex-PII, HAP (granite-guardian), DeBERTa prompt-injection detektor. GA a 3.4-ben.</dd></div>
-        <div class="glossary__item"><dt>FP8 / BF16 / 4-bit</dt><dd>Modellsúly-tárolási pontosságok; a memóriaigényt határozzák meg — a GLM-5.2 FP8 ~744 GB, ami nem fér el 8× H100-on.</dd></div>
+        <div class="glossary__item"><dt>FP8 / BF16 / 4-bit (NVFP4)</dt><dd>Modellsúly-tárolási pontosságok; a memóriaigényt határozzák meg — a GLM-5.2 FP8 ~744 GB (nem fér el 8× H100-on), NVFP4-ben ~370–400 GB (a jelenlegi konfig).</dd></div>
         <div class="glossary__item"><dt>GA (General Availability)</dt><dd>Általános rendelkezésre állás — production SLA-val, támogatással. Ellentéte: Technology Preview.</dd></div>
         <div class="glossary__item"><dt>Garak</dt><dd>LLM red-teaming keretrendszer (120+ probe); OpenShift AI-komponens, TP-státuszban.</dd></div>
         <div class="glossary__item"><dt>Gen AI studio</dt><dd>Az OpenShift AI felülete: modell-felfedezés, AI asset endpoints, MaaS API-kulcsok self-service módon.</dd></div>
